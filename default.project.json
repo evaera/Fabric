@@ -1,0 +1,48 @@
+{
+	"name": "fabric",
+	"tree": {
+		"$className": "DataModel",
+		"Workspace": {
+			"$className": "Workspace",
+			"Baseplate": {
+				"$className": "Part",
+				"$properties": {
+					"Size": [
+						200,
+						5,
+						200
+					],
+					"Anchored": true
+				}
+			}
+		},
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"Fabric": {
+				"$path": "src"
+			},
+			"$path": "Packages"
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"run": {
+				"$path": "./testRunner/runTests.server.lua"
+			},
+			"example": {
+				"$path": "./example/server"
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"clientTests": {
+					"$path": "./clientTests"
+				},
+				"example": {
+					"$path": "./example/client"
+				}
+			}
+		}
+	}
+}

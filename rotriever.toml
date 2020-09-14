@@ -1,0 +1,10 @@
+[package]
+name = "evaera/fabric"
+version = "0.0.0"
+author = "evaera"
+content_root = "src"
+license = "MIT"
+
+[dependencies]
+t = { git = "https://github.com/Roblox/t" }
+TestEZ = { git = "https://github.com/Roblox/testez" }
