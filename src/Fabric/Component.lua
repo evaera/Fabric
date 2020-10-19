@@ -21,7 +21,24 @@ function Component:fire(eventName, ...)
 	-- call a method of the event name if it exists
 	local methodName = "on" .. eventName:sub(1, 1):upper() .. eventName:sub(2)
 	if self[methodName] then
-		coroutine.wrap(self[methodName])(self, ...)
+		local thread = coroutine.create(self[methodName])
+
+		local success, errorValue = coroutine.resume(thread, self, ...)
+
+		if not success then
+			error(("%s method of %s encounetered an error: %s"):format(
+				tostring(methodName),
+				tostring(self),
+				tostring(errorValue)
+			))
+		end
+
+		if coroutine.status(thread) ~= "dead" then
+			warn(("Yielding in %s of %s is not allowed!"):format(
+				tostring(methodName),
+				tostring(self)
+			))
+		end
 	end
 
 	if not self._listeners[eventName] then
@@ -32,7 +49,8 @@ function Component:fire(eventName, ...)
 		local success, errorValue = coroutine.resume(coroutine.create(callback), ...)
 
 		if not success then
-			warn(("Event listener for %s encountered an error: %s"):format(
+			warn(("Event listener of for %s encountered an error: %s"):format(
+				tostring(self),
 				tostring(eventName),
 				tostring(errorValue)
 			))
