@@ -21,10 +21,11 @@ fabric:registerComponent({
 
 wait(.5)
 
-local pipeline = fabric:pipelineFor(workspace.Model.Part, "example")
+local pipeline = fabric:pipelineFor(workspace:FindFirstChild("Model"):FindFirstChild("Part"), "example")
 
 while wait(1) do
 	pipeline:addLayer("Door", {
-		transparency = math.random()
+		transparency = math.random(),
+		color = BrickColor.new("Really blue")
 	})
 end

@@ -8,9 +8,9 @@
 				"$className": "Part",
 				"$properties": {
 					"Size": [
-						200,
+						400,
 						5,
-						200
+						400
 					],
 					"Anchored": true
 				}
