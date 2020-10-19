@@ -36,7 +36,7 @@ function ClientReplicator.new(fabric)
 			self:subscribe(component.ref)
 		end;
 		onDestroy = function(component)
-			assert(component.ref ~= nil)
+			assert(component.ref ~= nil, "component.ref is nil")
 			self:unsubscribe(component.ref)
 		end;
 	})
@@ -62,7 +62,7 @@ function ClientReplicator.Remote:replicateComponents(components)
 	for _, entry in ipairs(components) do
 		local component = self.serializer:deserialize(entry.component)
 
-		assert(component ~= nil)
+		assert(component ~= nil, "component is nil")
 
 		self.fabric:pipelineFor(component.ref, Symbol.named("remote")):addLayer(component.name, entry.data)
 	end
