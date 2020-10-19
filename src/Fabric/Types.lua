@@ -15,6 +15,7 @@ Types.ComponentDefinition = t.interface({
 	-- Reserved Properties
 	data = t.none;
 	lastData = t.none;
+	fabric = t.none;
 	fire = t.none;
 	on = t.none;
 	ref = t.none;
@@ -26,7 +27,6 @@ Types.ComponentDefinition = t.interface({
 	-- Events
 	onAdded = t.optional(t.callback);
 	onUpdated = t.optional(t.callback);
-	onParentUpdated = t.optional(t.callback);
 	onRemoved = t.optional(t.callback);
 	initialize = t.optional(t.callback);
 	destroy = t.optional(t.callback);

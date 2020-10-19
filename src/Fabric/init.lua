@@ -1,5 +1,6 @@
 local ComponentCollection = require(script.ComponentCollection)
 local Pipeline = require(script.Pipeline)
+local Serializer = require(script.Serializer)
 
 local Fabric = {
 	reducers = require(script.Operators.Reducers);
@@ -14,6 +15,7 @@ function Fabric.new(namespace)
 		_listeners = {};
 	}, Fabric)
 
+	self.serializer = Serializer.new(self)
 	self._collection = ComponentCollection.new(self)
 
 	return self

@@ -55,29 +55,22 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	component._layers = {}
 	component._listeners = {}
 	component.ref = ref
+	component.fabric = self.fabric
 
 	self._refComponents[ref] = self._refComponents[ref] or {}
 	self._refComponents[ref][staticComponent] = component
 
-	component:fire("initialize")
-
 	component:on("destroy", function()
 		self:deconstructComponent(component)
 	end)
-
-	if getmetatable(getmetatable(ref)) == Component then
-		local disconnect = ref:on("updated", function(...)
-			component:fire("parentUpdated", ...)
-		end)
-
-		component:on("destroy", disconnect)
-	end
 
 	if staticComponent.components then
 		for name, data in pairs(staticComponent.components) do
 			self.fabric:pipelineFor(component, "_defaultComponents"):setBaseLayer(name, data)
 		end
 	end
+
+	component:fire("initialize")
 
 	return component
 end

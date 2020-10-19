@@ -17,6 +17,14 @@ fabric:registerComponent({
 	defaults = {
 		transparency = 0;
 	};
+
+	onInitialize = function(self)
+		self:getComponent("Transmitter"):on("clientSetTransparency", function(_, amount)
+			self:addLayer(self, {
+				transparency = amount
+			})
+		end)
+	end;
 })
 
 wait(.5)
@@ -25,7 +33,6 @@ local pipeline = fabric:pipelineFor(workspace:FindFirstChild("Model"):FindFirstC
 
 while wait(1) do
 	pipeline:addLayer("Door", {
-		transparency = math.random(),
 		color = BrickColor.new("Really blue")
 	})
 end

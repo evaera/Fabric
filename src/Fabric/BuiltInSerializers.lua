@@ -1,6 +1,4 @@
-local RunService = game:GetService("RunService")
-
-local Component = require(script.Parent.Parent.Fabric.Component)
+local Component = require(script.Parent.Component)
 
 return {
 	serializers = {
@@ -9,14 +7,14 @@ return {
 			return {
 				type = "_component";
 				name = component.name;
-				ref = fabric.replicator.serializer:serialize(component.ref);
+				ref = fabric.serializer:serialize(component.ref);
 			}
 		end
 	};
 
 	deserializers = {
 		_component = function(data, fabric)
-			local ref = fabric.replicator.serializer:deserialize(data.ref)
+			local ref = fabric.serializer:deserialize(data.ref)
 
 			return fabric._collection:getComponentByRef(data.name, ref) or error(
 				("Component %q does not currently exist (deserialization)"):format(

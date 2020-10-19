@@ -82,8 +82,24 @@ function Component:get(key)
 	return object
 end
 
+function Component:getComponent(componentResolvable)
+	return self.fabric._collection:getComponentByRef(componentResolvable, self)
+end
+
+function Component:getOrCreateComponent(componentResolvable)
+	return self.fabric._collection:getOrCreateComponentByRef(componentResolvable, self)
+end
+
 function Component:isDestroyed()
 	return self._destroyed or false
+end
+
+function Component:addLayer(scope, data)
+	return self:_addLayer(scope, data)
+end
+
+function Component:removeLayer(scope)
+	return self:_removeLayer(scope)
 end
 
 function Component:_addLayer(scope, data)
@@ -119,7 +135,7 @@ function Component:_changed()
 	end
 
 	if (self.shouldUpdate or Comparators.default)(newData, lastData) then
-		self:fire("updated")
+		self:fire("updated", newData, lastData)
 	end
 
 	if newData == nil then

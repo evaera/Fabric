@@ -1,9 +1,5 @@
 local BuiltInSerializers = require(script.Parent.BuiltInSerializers)
 
-local function identity(...)
-	return ...
-end
-
 local Serializer = {}
 Serializer.__index = Serializer
 
@@ -35,10 +31,7 @@ function Serializer:serialize(object)
 		return object
 	end
 
-	local serializer =
-		typeof(object) == "Instance"
-			and identity
-			or self:findSerializer(object)
+	local serializer = self:findSerializer(object)
 
 	return
 		serializer and serializer(object, self.fabric)

@@ -1,8 +1,11 @@
 local RunService = game:GetService("RunService")
 
-local ServerReplicator = require(script.ServerReplicator)
-local ClientReplicator = require(script.ClientReplicator)
+local ServerReplicator = require(script.ServerTransmitter)
+local ClientReplicator = require(script.ClientTransmitter)
+local registerReplicator = require(script.Replicator)
 
 return function (fabric)
-	fabric.replicator = (RunService:IsServer() and ServerReplicator or ClientReplicator).new(fabric)
+	fabric.transmitter = (RunService:IsServer() and ServerReplicator or ClientReplicator).new(fabric)
+
+	registerReplicator(fabric)
 end
