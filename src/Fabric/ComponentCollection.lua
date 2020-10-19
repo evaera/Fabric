@@ -2,6 +2,10 @@ local Component = require(script.Parent.Component)
 local Types = require(script.Parent.Types)
 local isAllowedOnRef = require(script.Parent.isAllowedOnRef).isAllowedOnRef
 
+local WEAK_KEYS_METATABLE = {
+	__mode = "k"
+}
+
 local ComponentCollection = {}
 ComponentCollection.__index = ComponentCollection
 
@@ -53,6 +57,7 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	)
 
 	component._layers = {}
+	component._reactsTo = setmetatable({}, WEAK_KEYS_METATABLE)
 	component._listeners = {}
 	component.ref = ref
 	component.fabric = self.fabric
@@ -94,7 +99,7 @@ function ComponentCollection:deconstructComponent(component)
 	component._ref = nil
 	component._destroyed = true
 	component._layers = nil
-
+	component._reactsTo = nil
 end
 
 function ComponentCollection:getComponentByRef(componentResolvable, ref)

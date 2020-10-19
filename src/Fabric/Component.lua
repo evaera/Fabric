@@ -26,11 +26,13 @@ function Component:fire(eventName, ...)
 		local success, errorValue = coroutine.resume(thread, self, ...)
 
 		if not success then
-			error(("%s method of %s encounetered an error: %s"):format(
+			warn(("%q method of %s encounetered an error: %s"):format(
 				tostring(methodName),
 				tostring(self),
 				tostring(errorValue)
 			))
+
+			return
 		end
 
 		if coroutine.status(thread) ~= "dead" then
@@ -49,7 +51,7 @@ function Component:fire(eventName, ...)
 		local success, errorValue = coroutine.resume(coroutine.create(callback), ...)
 
 		if not success then
-			warn(("Event listener of for %s encountered an error: %s"):format(
+			warn(("Event listener of %s for %q encountered an error: %s"):format(
 				tostring(self),
 				tostring(eventName),
 				tostring(errorValue)
@@ -79,10 +81,16 @@ function Component:on(eventName, callback)
 end
 
 function Component:get(key)
+	self.fabric._reactor:react(self, key)
+
 	local object = self.data
 
 	if object == nil then
 		return
+	end
+
+	if key == nil then
+		return object
 	end
 
 	if type(key) == "table" then
@@ -93,11 +101,11 @@ function Component:get(key)
 				return
 			end
 		end
+
+		return object
 	else
 		return object[key]
 	end
-
-	return object
 end
 
 function Component:getComponent(componentResolvable)
@@ -141,6 +149,39 @@ function Component:_removeLayer(scope)
 	end
 end
 
+function Component:_runEffect(key)
+	self.fabric._reactor:push(self, key)
+
+	local thread = coroutine.create(self.effects[key])
+	local success, errorValue = coroutine.resume(thread, self)
+
+	self.fabric._reactor:pop()
+
+	if not success then
+		warn(("Effect %q of %s encountered an error: %s"):format(
+			tostring(key),
+			tostring(self),
+			tostring(errorValue)
+		))
+	end
+end
+
+function Component:_runEffects()
+	if self.effects == nil then
+		return
+	end
+
+	-- Run in order if the keys are numbers
+	local iterator = pairs
+	if #self.effects > 0 then
+		iterator = ipairs
+	end
+
+	for key in iterator(self.effects) do
+		self:_runEffect(key)
+	end
+end
+
 function Component:_changed()
 	local lastData = self.data
 	local newData = self:_reduce()
@@ -150,10 +191,12 @@ function Component:_changed()
 
 	if lastData == nil and newData ~= nil then
 		self:fire("added", newData)
+
+		self:_runEffects()
 	end
 
 	if (self.shouldUpdate or Comparators.default)(newData, lastData) then
-		self:fire("updated", newData, lastData)
+		self:fire("updated")
 	end
 
 	if newData == nil then
@@ -192,7 +235,9 @@ function Component:_reduce()
 end
 
 function Component:__tostring()
-	return ("Component(%s)"):format(self.name)
+	return ("Component(%s)"):format(
+		typeof(self.ref) == "Instance" and ("%s, %s"):format(self.name, self.ref.Name) or self.name
+	)
 end
 
 return Component

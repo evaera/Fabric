@@ -31,6 +31,8 @@ Types.ComponentDefinition = t.interface({
 	initialize = t.optional(t.callback);
 	destroy = t.optional(t.callback);
 
+	effects = t.optional(t.array(t.callback));
+
 	-- Extensions
 	tag = t.optional(t.string);
 	chainingEvents = t.optional(t.array(t.string));

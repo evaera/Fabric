@@ -29,9 +29,9 @@ return function (fabric)
 		},
 		RunService:IsServer() and {
 			onAdded = function(self)
-				self:on("destroy", self.ref:on("updated", function(data)
+				self:on("destroy", self.ref:on("updated", function()
 					self.transmitter:broadcast("replicate", {
-						data = data;
+						data = self.ref.data;
 					})
 				end))
 			end;

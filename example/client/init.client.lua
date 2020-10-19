@@ -25,8 +25,12 @@ fabric:registerComponent({
 		end)
 	end;
 
-	onUpdated = function(self)
-		self.ref.Transparency = self:get("transparency") or 0
-		self.ref.BrickColor = self:get("color") or BrickColor.new("Really red")
-	end
+	effects = {
+		function(self)
+			self.ref.Transparency = self:get("transparency") or 0
+		end,
+		function(self)
+			self.ref.BrickColor = self:get("color") or BrickColor.new("Really red")
+		end,
+	}
 })
