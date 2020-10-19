@@ -24,7 +24,7 @@ function Fabric:pipelineFor(ref, scope)
 end
 
 function Fabric:registerComponent(componentDefinition)
-	assert(componentDefinition ~= nil)
+	assert(componentDefinition ~= nil, "componentDefinition is nil")
 	self._collection:register(componentDefinition)
 
 	self:fire("componentRegistered", componentDefinition)
