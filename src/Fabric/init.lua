@@ -1,3 +1,5 @@
+local DEFAULT_NAMESPACE = "game"
+
 local ComponentCollection = require(script.ComponentCollection)
 local Pipeline = require(script.Pipeline)
 local Reactor = require(script.Reactor)
@@ -12,7 +14,7 @@ Fabric.__index = Fabric
 
 function Fabric.new(namespace)
 	local self = setmetatable({
-		namespace = namespace;
+		namespace = namespace or DEFAULT_NAMESPACE;
 		_listeners = {};
 	}, Fabric)
 
