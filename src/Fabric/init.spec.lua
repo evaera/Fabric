@@ -97,6 +97,26 @@ return function()
 			expect(component:get({"nested", "value"})).to.equal("nested_value")
 		end)
 
+		describe("setBaseComponent", function()
+			it("should allow setting the base component", function()
+				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
+
+				pipeline:setBaseLayer("Test", {
+					bar = 1
+				})
+
+				local component = fabric:getComponentByRef("Test", TEST_REF)
+
+				expect(component.data.bar).to.equal(1)
+
+				component:setBaseLayer({
+					bar = 2
+				})
+
+				expect(component.data.bar).to.equal(2)
+			end)
+		end)
+
 		it("should combine layers", function()
 			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
 
