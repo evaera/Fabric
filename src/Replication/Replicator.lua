@@ -13,11 +13,14 @@ return function (fabric)
 			end;
 			onInitialize = function(self)
 				self.transmitter = self.ref:getOrCreateComponent("Transmitter")
+				self.initialBroadcastSent = false
 
 				self:on("destroy", self.transmitter:on("subscriberAdded", function(player)
-					self.transmitter:sendTo(player, "replicate", {
-						data = self.ref.data
-					})
+					if self.initialBroadcastSent then
+						self.transmitter:sendTo(player, "replicate", {
+							data = self.ref.data
+						})
+					end
 				end))
 
 				if RunService:IsClient() then
@@ -30,6 +33,8 @@ return function (fabric)
 		RunService:IsServer() and {
 			onAdded = function(self)
 				self:on("destroy", self.ref:on("updated", function()
+					self.initialBroadcastSent = true
+
 					self.transmitter:broadcast("replicate", {
 						data = self.ref.data;
 					})
