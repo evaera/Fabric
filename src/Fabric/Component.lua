@@ -71,6 +71,11 @@ function Component:on(eventName, callback)
 	table.insert(self._listeners[eventName], callback)
 
 	return function()
+		if self._listeners == nil then
+			-- This component has been destroyed
+			return
+		end
+
 		for i, listCallback in ipairs(self._listeners[eventName]) do
 			if listCallback == callback then
 				table.remove(self._listeners[eventName], i)
