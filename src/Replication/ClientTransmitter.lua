@@ -14,16 +14,6 @@ function ClientTransmitter.new(fabric)
 
 	self._event = ReplicatedStorage:WaitForChild(EVENT_NAME)
 
-	self._event.OnClientEvent:Connect(function(namespace, eventName, ...)
-		if namespace ~= self.fabric.namespace then
-			return
-		end
-
-		if ClientTransmitter.Remote[eventName] then
-			ClientTransmitter.Remote[eventName](self, ...)
-		end
-	end)
-
 	self._component = fabric:registerComponent({
 		name = "Transmitter";
 		onInitialize = function(component)
@@ -43,6 +33,16 @@ function ClientTransmitter.new(fabric)
 		end;
 	})
 
+	self._event.OnClientEvent:Connect(function(namespace, eventName, ...)
+		if namespace ~= self.fabric.namespace then
+			return
+		end
+
+		if ClientTransmitter.Remote[eventName] then
+			ClientTransmitter.Remote[eventName](self, ...)
+		end
+	end)
+
 	return setmetatable(self, ClientTransmitter)
 end
 
@@ -56,8 +56,8 @@ function ClientTransmitter:unsubscribe(component)
 	self:_send("unsubscribe", self.fabric.serializer:serialize(component))
 end
 
-function ClientTransmitter:_send(eventName, ...)
-	self._event:FireServer(self.fabric.namespace, eventName, ...)
+function ClientTransmitter:_send(eventName, serializedComponent, ...)
+	self._event:FireServer(self.fabric.namespace, eventName, serializedComponent, ...)
 end
 
 function ClientTransmitter.Remote:event(serializedComponent, transmitEvent, transmitData)

@@ -5,7 +5,8 @@ local ClientReplicator = require(script.ClientTransmitter)
 local registerReplicator = require(script.Replicator)
 
 return function (fabric)
+	registerReplicator(fabric)
+
 	fabric.transmitter = (RunService:IsServer() and ServerReplicator or ClientReplicator).new(fabric)
 
-	registerReplicator(fabric)
 end
