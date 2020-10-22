@@ -26,6 +26,7 @@ fabric:registerComponent({
 	end;
 
 	effects = {
+		-- Each effect only runs if the key it accesses with :get actually changes
 		function(self)
 			self.ref.Transparency = self:get("transparency") or 0
 		end,
