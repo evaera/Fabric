@@ -59,6 +59,12 @@ return function()
 			onRemoved = function(self)
 				callCounts:call("onRemoved")
 			end;
+			onSetBaseLayerVal = function(self)
+				callCounts:call("onSetBaseLayerVal")
+				self:setBaseLayer({
+					BaseLayerSet = true
+				})
+			end;
 		}, callCounts
 	end
 
@@ -95,6 +101,11 @@ return function()
 			expect(component:get("added")).to.equal(1)
 			expect(component:get("testDefault")).to.equal(5)
 			expect(component:get({"nested", "value"})).to.equal("nested_value")
+
+			expect(component:get("BaseLayerSet")).to.never.be.ok()
+			component:fire("SetBaseLayerVal")
+			expect(callCounts.onSetBaseLayerVal).to.equal(1)
+			expect(component:get("BaseLayerSet")).to.equal(true)
 		end)
 
 		it("should combine layers", function()

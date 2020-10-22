@@ -124,6 +124,10 @@ function Component:addLayer(scope, data)
 	return self:_addLayer(scope, data)
 end
 
+function Component:setBaseLayer(data)
+	return self:_addLayer(Symbol.named("base"), data)
+end
+
 function Component:removeLayer(scope)
 	return self:_removeLayer(scope)
 end
