@@ -59,12 +59,6 @@ return function()
 			onRemoved = function(self)
 				callCounts:call("onRemoved")
 			end;
-			onSetBaseLayerVal = function(self)
-				callCounts:call("onSetBaseLayerVal")
-				self:setBaseLayer({
-					BaseLayerSet = true
-				})
-			end;
 		}, callCounts
 	end
 
@@ -101,11 +95,26 @@ return function()
 			expect(component:get("added")).to.equal(1)
 			expect(component:get("testDefault")).to.equal(5)
 			expect(component:get({"nested", "value"})).to.equal("nested_value")
+		end)
 
-			expect(component:get("BaseLayerSet")).to.never.be.ok()
-			component:fire("SetBaseLayerVal")
-			expect(callCounts.onSetBaseLayerVal).to.equal(1)
-			expect(component:get("BaseLayerSet")).to.equal(true)
+		describe("setBaseComponent", function()
+			it("should allow setting the base component", function()
+				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
+
+				pipeline:setBaseLayer("Test", {
+					bar = 1
+				})
+
+				local component = fabric:getComponentByRef("Test", TEST_REF)
+
+				expect(component.data.bar).to.equal(1)
+
+				component:setBaseLayer({
+					bar = 2
+				})
+
+				expect(component.data.bar).to.equal(2)
+			end)
 		end)
 
 		it("should combine layers", function()
