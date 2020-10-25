@@ -120,7 +120,7 @@ end
 
 function ComponentCollection:removeAllComponentsWithRef(ref)
 	if self._refComponents[ref] then
-		for _, component in pairs(self._refComponents[ref]) do
+		for _staticComponent, component in pairs(self._refComponents[ref]) do
 			component:fire("destroy")
 		end
 	end
