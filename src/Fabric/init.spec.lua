@@ -2,6 +2,7 @@ local Util = require(script.Parent.Parent.Shared.Util)
 local Fabric = require(script.Parent)
 
 local TEST_REF = {}
+local TEST_REF_2 = {}
 
 return function()
 	local function makeTestComponentDefinition(fabric)
@@ -196,6 +197,36 @@ return function()
 			})
 
 			expect(newComponent).to.never.equal(component)
+		end)
+
+		it("shouldn't remove other refs", function()
+			local newComponent = {
+				name = "Test2",
+				tag = "Test2",
+			}
+			local newComponent2 = {
+				name = "Test3",
+				tag = "Test3",
+				components = {
+					Test2 = {}
+				},
+			}
+			fabric:registerComponent(newComponent)
+			fabric:registerComponent(newComponent2)
+
+			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
+			local component = pipeline:addLayer("Test3", {})
+
+			local otherPipeline = fabric:pipelineFor(TEST_REF_2, "foo")
+			local otherComoponent = otherPipeline:addLayer("Test3", {})
+
+			expect(component:isDestroyed()).to.equal(false)
+			expect(otherComoponent:isDestroyed()).to.equal(false)
+
+			pipeline:removeLayer("Test3")
+
+			expect(component:isDestroyed()).to.equal(true)
+			expect(otherComoponent:isDestroyed()).to.equal(false)
 		end)
 	end)
 end
