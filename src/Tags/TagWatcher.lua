@@ -31,6 +31,8 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 			for _, item in ipairs(self._deferred) do
 				self.fabric:pipelineFor(item.instance, "tags"):setBaseLayer(item.staticComponent, item.data)
 			end
+
+			self._deferred = nil
 		end)
 	end
 
