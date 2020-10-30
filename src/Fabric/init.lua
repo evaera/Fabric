@@ -1,3 +1,5 @@
+local RunService = game:GetService("RunService")
+
 local DEFAULT_NAMESPACE = "game"
 
 local ComponentCollection = require(script.ComponentCollection)
@@ -9,6 +11,7 @@ local Fabric = {
 	reducers = require(script.Operators.Reducers);
 	comparators = require(script.Operators.Comparators);
 	DEBUG = true;
+	Heartbeat = RunService.Heartbeat;
 }
 Fabric.__index = Fabric
 

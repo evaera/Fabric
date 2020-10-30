@@ -25,7 +25,7 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 		self._deferredCreation = {}
 
 		local connection
-		connection = RunService.Heartbeat:Connect(function()
+		connection = self.fabric.Heartbeat:Connect(function()
 			connection:Disconnect()
 
 			for _, item in ipairs(self._deferredCreation) do
