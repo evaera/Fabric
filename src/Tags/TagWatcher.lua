@@ -8,12 +8,28 @@ function TagWatcher.new(fabric)
 	local self = setmetatable({
 		fabric = fabric;
 		_tags = {};
-		_deferred = nil;
+		_deferredCreation = nil;
+		_deferredRegistration = nil;
 	}, TagWatcher)
 
 	fabric:on("componentRegistered", function(staticComponent)
 		if staticComponent.tag then
-			self:listenForTag(staticComponent.tag, staticComponent)
+			if self._deferredRegistration == nil then
+				self._deferredRegistration = {}
+
+				local connection
+				connection = self.fabric.Heartbeat:Connect(function()
+					connection:Disconnect()
+
+					for _, item in ipairs(self._deferredRegistration) do
+						self:listenForTag(item.tag, item)
+					end
+
+					self._deferredRegistration = nil
+				end)
+			end
+
+			table.insert(self._deferredRegistration, staticComponent)
 		end
 	end)
 
@@ -21,22 +37,22 @@ function TagWatcher.new(fabric)
 end
 
 function TagWatcher:_deferCreation(staticComponent, instance, data)
-	if self._deferred == nil then
-		self._deferred = {}
+	if self._deferredCreation == nil then
+		self._deferredCreation = {}
 
 		local connection
-		connection = RunService.Heartbeat:Connect(function()
+		connection = self.fabric.Heartbeat:Connect(function()
 			connection:Disconnect()
 
-			for _, item in ipairs(self._deferred) do
+			for _, item in ipairs(self._deferredCreation) do
 				self.fabric:pipelineFor(item.instance, "tags"):setBaseLayer(item.staticComponent, item.data)
 			end
 
-			self._deferred = nil
+			self._deferredCreation = nil
 		end)
 	end
 
-	table.insert(self._deferred, {
+	table.insert(self._deferredCreation, {
 		staticComponent = staticComponent;
 		instance = instance;
 		data = data;
