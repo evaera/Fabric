@@ -42,13 +42,3 @@ fabric:registerComponent({
 		end
 	};
 })
-
--- wait(.5)
-
--- local pipeline = fabric:pipelineFor(workspace:FindFirstChild("Model"):FindFirstChild("Part"), "example")
-
--- while wait(1) do
--- 	pipeline:addLayer("Door", {
--- 		color = BrickColor.new("Really blue")
--- 	})
--- end
