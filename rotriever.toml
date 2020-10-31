@@ -8,3 +8,4 @@ license = "MIT"
 [dependencies]
 t = { git = "https://github.com/Roblox/t" }
 TestEZ = { git = "https://github.com/Roblox/testez" }
+Promise = { git = "https://github.com/evaera/roblox-lua-promise" }

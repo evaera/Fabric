@@ -54,11 +54,8 @@ return function()
 			onUpdated = function(self)
 				callCounts:call("onUpdated")
 			end;
-			onAdded = function(self)
-				callCounts:call("onAdded")
-			end;
-			onRemoved = function(self)
-				callCounts:call("onRemoved")
+			onLoaded = function(self)
+				callCounts:call("onLoaded")
 			end;
 		}, callCounts
 	end
@@ -87,11 +84,15 @@ return function()
 
 			expect(callCounts.refCheck).to.equal(1)
 			expect(callCounts.onInitialize).to.equal(1)
-			expect(callCounts.onAdded).to.equal(1)
+			expect(component:isLoaded()).to.equal(true)
+			expect(callCounts.onLoaded).to.equal(1)
 			expect(callCounts.onUpdated).to.equal(1)
 			expect(callCounts.check).to.equal(1)
-			expect(callCounts.onRemoved).to.equal(0)
 			expect(callCounts.onDestroy).to.equal(0)
+
+			local loadedPromise = fabric:getLoadedComponentByRef("Test", TEST_REF)
+			expect(loadedPromise:getStatus()).to.equal("Resolved")
+			expect(loadedPromise._values[1]).to.equal(component)
 
 			expect(component:get("added")).to.equal(1)
 			expect(component:get("testDefault")).to.equal(5)
@@ -139,10 +140,9 @@ return function()
 
 			expect(callCounts.refCheck).to.equal(1)
 			expect(callCounts.onInitialize).to.equal(1)
-			expect(callCounts.onAdded).to.equal(1)
+			expect(callCounts.onLoaded).to.equal(1)
 			expect(callCounts.onUpdated).to.equal(2)
 			expect(callCounts.check).to.equal(2)
-			expect(callCounts.onRemoved).to.equal(0)
 			expect(callCounts.onDestroy).to.equal(0)
 
 			expect(component:get("added")).to.equal(2)
@@ -188,7 +188,6 @@ return function()
 			pipeline:getScope("bar"):removeLayer("Test")
 
 			expect(component:get("added")).to.equal(nil)
-			expect(callCounts.onRemoved).to.equal(1)
 			expect(callCounts.onDestroy).to.equal(1)
 			expect(component:isDestroyed()).to.equal(true)
 

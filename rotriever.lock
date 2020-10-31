@@ -6,9 +6,16 @@ lockfile_format_version = 3
 name = "evaera/fabric"
 version = "0.0.0"
 dependencies = [
+    "Promise evaera/roblox-lua-promise 33736a32 git+https://github.com/evaera/roblox-lua-promise#master",
     "TestEZ roblox/testez 0a816380 git+https://github.com/roblox/testez#master",
     "t osyris/t d4294924 git+https://github.com/roblox/t#master",
 ]
+
+[[package]]
+name = "evaera/roblox-lua-promise"
+version = "3.0.1"
+source = "git+https://github.com/evaera/roblox-lua-promise#master"
+commit = "33736a32545408c7e35f27fae56c8312aab0c4d5"
 
 [[package]]
 name = "osyris/t"

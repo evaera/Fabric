@@ -199,17 +199,15 @@ function Component:_changed()
 	self.lastData = lastData
 
 	if lastData == nil and newData ~= nil then
-		self:fire("added", newData)
+		self._loaded = true
+		self._loading = false
+		self:fire("loaded", newData)
 
 		self:_runEffects()
 	end
 
 	if (self.shouldUpdate or Comparators.default)(newData, lastData) then
 		self:fire("updated")
-	end
-
-	if newData == nil then
-		self:fire("removed")
 	end
 
 	self.lastData = nil
@@ -241,6 +239,18 @@ function Component:_reduce()
 	end
 
 	return data
+end
+
+function Component:isLoaded()
+	return self._loaded
+end
+
+function Component:setIsLoading()
+	if self._loaded then
+		error("Attempt to call setIsLoading when this component is already loaded.")
+	end
+
+	self._loading = true
 end
 
 function Component:__tostring()

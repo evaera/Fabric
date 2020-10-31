@@ -60,6 +60,7 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 end
 
 function TagWatcher:listenForTag(tag, staticComponent)
+	self.fabric:debug("Creating components for tag", tag)
 	assert(self._tags[tag] == nil, ("Tag %q is already in use!"):format(tag))
 	self._tags[tag] = true
 
