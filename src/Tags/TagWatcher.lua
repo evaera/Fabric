@@ -9,11 +9,27 @@ function TagWatcher.new(fabric)
 		fabric = fabric;
 		_tags = {};
 		_deferredCreation = nil;
+		_deferredRegistration = nil;
 	}, TagWatcher)
 
 	fabric:on("componentRegistered", function(staticComponent)
 		if staticComponent.tag then
-			self:listenForTag(staticComponent.tag, staticComponent)
+			if self._deferredRegistration == nil then
+				self._deferredRegistration = {}
+
+				local connection
+				connection = self.fabric.Heartbeat:Connect(function()
+					connection:Disconnect()
+
+					for _, item in ipairs(self._deferredRegistration) do
+						self:listenForTag(item.tag, item)
+					end
+
+					self._deferredRegistration = nil
+				end)
+			end
+
+			table.insert(self._deferredRegistration, staticComponent)
 		end
 	end)
 
