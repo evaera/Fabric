@@ -1,5 +1,6 @@
 {
 	"name": "fabric",
+	"servePort": 12345,
 	"tree": {
 		"$className": "DataModel",
 		"Workspace": {

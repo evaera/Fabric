@@ -1,0 +1,13 @@
+{
+  "name": "Fabric",
+  "tree": {
+    "$className": "ModuleScript",
+    "$properties": {
+      "Source": "return require(script.Fabric)"
+    },
+    "Fabric": {
+      "$path": "src"
+    },
+    "$path": "Packages"
+  }
+}
