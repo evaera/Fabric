@@ -24,6 +24,8 @@ return function (fabric)
 				end))
 
 				if RunService:IsClient() then
+					self.ref:setIsLoading()
+
 					self.transmitter:on("serverReplicate", function(payload)
 						self.ref:_addLayer(Symbol.named("remote"), payload.data)
 					end)
@@ -31,7 +33,7 @@ return function (fabric)
 			end;
 		},
 		RunService:IsServer() and {
-			onAdded = function(self)
+			onLoaded = function(self)
 				self:on("destroy", self.ref:on("updated", function()
 					self.initialBroadcastSent = true
 

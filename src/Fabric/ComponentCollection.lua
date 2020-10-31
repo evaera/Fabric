@@ -61,6 +61,8 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	component._listeners = {}
 	component.ref = ref
 	component.fabric = self.fabric
+	component._loading = false
+	component._loaded = false
 
 	self._refComponents[ref] = self._refComponents[ref] or {}
 	self._refComponents[ref][staticComponent] = component
@@ -80,7 +82,6 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	return component
 end
 
--- TODO: onRemoved only fires if the component is removed due to data being nil
 -- Need a way to hook into that and make sure components being removed is
 -- identical to component having all data set to nil
 -- Perhaps a component:destroy() method is necessary after all

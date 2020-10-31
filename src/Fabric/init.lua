@@ -2,6 +2,8 @@ local RunService = game:GetService("RunService")
 
 local DEFAULT_NAMESPACE = "game"
 
+local Promise = require(script.Parent.Parent.Promise)
+
 local ComponentCollection = require(script.ComponentCollection)
 local Pipeline = require(script.Pipeline)
 local Reactor = require(script.Reactor)
@@ -43,6 +45,42 @@ end
 
 function Fabric:getComponentByRef(componentResolvable, ref)
 	return self._collection:getComponentByRef(componentResolvable, ref)
+end
+
+function Fabric:getOrCreateComponentByRef(componentResolvable, ref)
+	return self._collection:getOrCreateComponentByRef(componentResolvable, ref)
+end
+
+function Fabric:getLoadedComponentByRef(componentResolvable, ref)
+	local component = self._collection:getComponentByRef(componentResolvable, ref)
+
+	if component == nil then
+		error(("Attempt to get loaded component %q on %s, but it does not exist."):format(
+			tostring(componentResolvable),
+			tostring(ref)
+		))
+	end
+
+	if not (component._loaded or component._loading) then
+		error(("Attempt to call getLoadedComponentByRef on %q on %s, but it will never be loaded."):format(
+			tostring(componentResolvable),
+			tostring(ref)
+		))
+	end
+
+	return Promise.new(function(resolve, reject)
+		if component._loaded then
+			return resolve(component)
+		else
+			component:on("loaded", function()
+				resolve(component)
+			end)
+
+			component:on("loadingFailed", function(...)
+				reject(...)
+			end)
+		end
+	end)
 end
 
 function Fabric:removeAllComponentsWithRef(ref)

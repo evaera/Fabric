@@ -43,12 +43,12 @@ fabric:registerComponent({
 	};
 })
 
-wait(.5)
+-- wait(.5)
 
-local pipeline = fabric:pipelineFor(workspace:FindFirstChild("Model"):FindFirstChild("Part"), "example")
+-- local pipeline = fabric:pipelineFor(workspace:FindFirstChild("Model"):FindFirstChild("Part"), "example")
 
-while wait(1) do
-	pipeline:addLayer("Door", {
-		color = BrickColor.new("Really blue")
-	})
-end
+-- while wait(1) do
+-- 	pipeline:addLayer("Door", {
+-- 		color = BrickColor.new("Really blue")
+-- 	})
+-- end

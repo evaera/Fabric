@@ -6,6 +6,10 @@ local fabric = FabricLib.Fabric.new("example")
 FabricLib.useReplication(fabric)
 FabricLib.useTags(fabric)
 
+local function test(ref)
+	print(fabric:getLoadedComponentByRef("Door", ref):expect())
+end
+
 fabric:registerComponent({
 	name = "Door";
 	tag = "Door";
@@ -23,6 +27,8 @@ fabric:registerComponent({
 			self.ref.Transparency = amount
 			self:getComponent("Transmitter"):send("setTransparency", amount)
 		end)
+
+		test(self.ref)
 	end;
 
 	effects = {
