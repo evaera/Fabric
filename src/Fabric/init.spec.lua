@@ -35,11 +35,11 @@ return function()
 					return false
 				end
 			});
-			check = function(data)
+			schema = function(data)
 				expect(data).to.be.ok()
 				expect(type(data)).to.equal("table")
 
-				callCounts:call("check")
+				callCounts:call("schema")
 
 				return true
 			end;
@@ -87,7 +87,7 @@ return function()
 			expect(component:isLoaded()).to.equal(true)
 			expect(callCounts.onLoaded).to.equal(1)
 			expect(callCounts.onUpdated).to.equal(1)
-			expect(callCounts.check).to.equal(1)
+			expect(callCounts.schema).to.equal(1)
 			expect(callCounts.onDestroy).to.equal(0)
 
 			local loadedPromise = fabric:getLoadedComponentByRef("Test", TEST_REF)
@@ -142,7 +142,7 @@ return function()
 			expect(callCounts.onInitialize).to.equal(1)
 			expect(callCounts.onLoaded).to.equal(1)
 			expect(callCounts.onUpdated).to.equal(2)
-			expect(callCounts.check).to.equal(2)
+			expect(callCounts.schema).to.equal(2)
 			expect(callCounts.onDestroy).to.equal(0)
 
 			expect(component:get("added")).to.equal(2)

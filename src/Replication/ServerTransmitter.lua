@@ -22,7 +22,7 @@ function ServerTransmitter.new(fabric)
 	self._component = fabric:registerComponent({
 		name = "Transmitter";
 		reducer = fabric.reducers.structure({});
-		check = function(value)
+		schema = function(value)
 			return type(value) == "table"
 		end;
 		onInitialize = function(component)

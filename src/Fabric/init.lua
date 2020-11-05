@@ -12,6 +12,7 @@ local Serializer = require(script.Serializer)
 local Fabric = {
 	reducers = require(script.Operators.Reducers);
 	comparators = require(script.Operators.Comparators);
+	t = require(script.Parent.Parent.t);
 	DEBUG = true;
 	Heartbeat = RunService.Heartbeat;
 }

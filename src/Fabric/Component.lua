@@ -234,8 +234,8 @@ function Component:_reduce()
 		data = Util.assign({}, self.defaults, reducedValue)
 	end
 
-	if self.check then
-		assert(self.check(data))
+	if self.schema then
+		assert(self.schema(data))
 	end
 
 	return data

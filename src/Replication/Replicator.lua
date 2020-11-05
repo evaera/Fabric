@@ -8,7 +8,7 @@ return function (fabric)
 		{
 			name = "Replicated";
 			reducer = fabric.reducers.structure({});
-			check = function(value)
+			schema = function(value)
 				return type(value) == "table"
 			end;
 			onInitialize = function(self)
