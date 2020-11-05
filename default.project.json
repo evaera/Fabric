@@ -19,10 +19,15 @@
 		},
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"Fabric": {
-				"$path": "src"
-			},
-			"$path": "Packages"
+			"Packages": {
+				"Fabric": {
+					"$path": "src"
+				},
+				"$path": "Packages",
+				"exampleClientComponents": {
+					"$path": "./example/client/components"
+				}
+			}
 		},
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
@@ -41,7 +46,7 @@
 					"$path": "./clientTests"
 				},
 				"example": {
-					"$path": "./example/client"
+					"$path": "./example/client/clientRun.client.lua"
 				}
 			}
 		}

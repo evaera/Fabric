@@ -6,4 +6,4 @@ local fabric = FabricLib.Fabric.new("example")
 FabricLib.useReplication(fabric)
 FabricLib.useTags(fabric)
 
-fabric:registerComponentsIn(script.components)
+fabric:registerComponentsIn(ReplicatedStorage.Packages.exampleClientComponents)

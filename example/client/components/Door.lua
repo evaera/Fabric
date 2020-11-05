@@ -1,16 +1,4 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local FabricLib = require(ReplicatedStorage.Fabric)
-
-local fabric = FabricLib.Fabric.new("example")
-FabricLib.useReplication(fabric)
-FabricLib.useTags(fabric)
-
-local function test(ref)
-	print(fabric:getLoadedComponentByRef("Door", ref):expect())
-end
-
-fabric:registerComponent({
+return {
 	name = "Door";
 	tag = "Door";
 
@@ -24,20 +12,26 @@ fabric:registerComponent({
 
 		self.cd.MouseClick:Connect(function()
 			local amount = math.random()
-			self.ref.Transparency = amount
+			--self.ref.Transparency = amount
 			self:getComponent("Transmitter"):send("setTransparency", amount)
 		end)
-
-		test(self.ref)
 	end;
+
+	onUpdated = function(self)
+		print(self)
+	end,
 
 	effects = {
 		-- Each effect only runs if the key it accesses with :get actually changes
 		function(self)
 			self.ref.Transparency = self:get("transparency") or 0
+
+			self.x = (self.x or 0) + 1
+
+			print(self.x)
 		end,
 		function(self)
 			self.ref.BrickColor = self:get("color") or BrickColor.new("Really red")
 		end,
 	}
-})
+}

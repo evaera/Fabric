@@ -164,6 +164,13 @@ function Component:_runEffect(key)
 	local thread = coroutine.create(self.effects[key])
 	local success, errorValue = coroutine.resume(thread, self)
 
+	if coroutine.status(thread) ~= "dead" then
+		warn(("Effect %q of %s yielded! This is very illegal."):format(
+			tostring(key),
+			tostring(self)
+		))
+	end
+
 	self.fabric._reactor:pop()
 
 	if not success then

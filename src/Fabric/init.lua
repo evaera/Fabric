@@ -8,6 +8,8 @@ local ComponentCollection = require(script.ComponentCollection)
 local Pipeline = require(script.Pipeline)
 local Reactor = require(script.Reactor)
 local Serializer = require(script.Serializer)
+local HotReloader = require(script.HotReloader)
+local Util = require(script.Parent.Shared.Util)
 
 local Fabric = {
 	reducers = require(script.Operators.Reducers);
@@ -28,6 +30,10 @@ function Fabric.new(namespace)
 	self._collection = ComponentCollection.new(self)
 	self._reactor = Reactor.new(self)
 
+	if RunService:IsStudio() then
+		self._hotReloader = HotReloader.new(self)
+	end
+
 	return self
 end
 
@@ -42,6 +48,23 @@ function Fabric:registerComponent(componentDefinition)
 	self:fire("componentRegistered", componentDefinition)
 
 	return componentDefinition
+end
+
+function Fabric:registerComponentsIn(container)
+	for _, object in ipairs(container:GetChildren()) do
+		if object:IsA("ModuleScript") then
+			if not object.Name:match("%.spec$") then
+				local componentDefinition = require(object)
+				self:registerComponent(componentDefinition)
+
+				if self._hotReloader then
+					self._hotReloader:giveModule(object, componentDefinition)
+				end
+			end
+		else
+			self:registerComponentsIn(object)
+		end
+	end
 end
 
 function Fabric:getComponentByRef(componentResolvable, ref)

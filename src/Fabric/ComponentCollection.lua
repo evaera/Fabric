@@ -18,9 +18,12 @@ function ComponentCollection.new(fabric)
 	}, ComponentCollection)
 end
 
-function ComponentCollection:register(componentDefinition)
+function ComponentCollection:register(componentDefinition, isHotReload)
 	assert(Types.ComponentDefinition, componentDefinition)
-	assert(self._componentsByName[componentDefinition.name] == nil, "A component with this name is already registered!")
+
+	if not isHotReload then
+		assert(self._componentsByName[componentDefinition.name] == nil, "A component with this name is already registered!")
+	end
 
 	setmetatable(componentDefinition, Component)
 	componentDefinition.__index = componentDefinition
