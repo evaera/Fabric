@@ -100,7 +100,7 @@ return function()
 		end)
 
 		describe("setBaseComponent", function()
-			it("should allow setting the base component", function()
+			it("should allow merging into the base layer", function()
 				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
 
 				pipeline:setBaseLayer("Test", {
@@ -109,13 +109,17 @@ return function()
 
 				local component = fabric:getComponentByRef("Test", TEST_REF)
 
+				component:mergeWithBaseLayer({
+					foo = 2
+				})
 				expect(component.data.bar).to.equal(1)
+				expect(component.data.foo).to.equal(2)
 
-				component:setBaseLayer({
+				component:mergeWithBaseLayer({
 					bar = 2
 				})
-
 				expect(component.data.bar).to.equal(2)
+				expect(component.data.foo).to.equal(2)
 			end)
 		end)
 

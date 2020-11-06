@@ -129,8 +129,16 @@ function Component:addLayer(scope, data)
 	return self:_addLayer(scope, data)
 end
 
-function Component:setBaseLayer(data)
-	return self:_addLayer(Symbol.named("base"), data)
+function Component:mergeWithBaseLayer(data)
+	local baseLayer = self._layers[Symbol.named("base")]
+	-- create new data for layer --
+	local newBaseLayer = {}
+	for _, tbl in ipairs({baseLayer, data}) do
+		for key, value in pairs(tbl) do
+			newBaseLayer[key] = value
+		end
+	end
+	return self:setBaseLayer(newBaseLayer)
 end
 
 function Component:removeLayer(scope)
