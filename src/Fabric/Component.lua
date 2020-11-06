@@ -135,7 +135,11 @@ function Component:mergeWithBaseLayer(data)
 	local newBaseLayer = {}
 	for _, tbl in ipairs({baseLayer, data}) do
 		for key, value in pairs(tbl) do
-			newBaseLayer[key] = value
+			if value == self.fabric.None then
+				newBaseLayer[key] = nil
+			else
+				newBaseLayer[key] = value
+			end
 		end
 	end
 	return self:_addLayer(Symbol.named("base"), newBaseLayer)

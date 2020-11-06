@@ -121,6 +121,22 @@ return function()
 				expect(component.data.bar).to.equal(2)
 				expect(component.data.foo).to.equal(2)
 			end)
+			it("should set fabric.None values to nil", function()
+				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
+
+				pipeline:setBaseLayer("Test", {
+					bar = 1
+				})
+
+				local component = fabric:getComponentByRef("Test", TEST_REF)
+
+				expect(component.data.bar).to.equal(1)
+
+				component:mergeWithBaseLayer({
+					bar = fabric.None
+				})
+				expect(component.data.bar).to.never.be.ok()
+			end)
 		end)
 
 		it("should combine layers", function()
