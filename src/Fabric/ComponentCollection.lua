@@ -25,6 +25,8 @@ function ComponentCollection:register(componentDefinition, isHotReload)
 		assert(self._componentsByName[componentDefinition.name] == nil, "A component with this name is already registered!")
 	end
 
+	self.fabric.Component[componentDefinition.name] = componentDefinition
+
 	setmetatable(componentDefinition, Component)
 	componentDefinition.__index = componentDefinition
 	componentDefinition.__tostring = Component.__tostring

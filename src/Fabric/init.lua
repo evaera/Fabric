@@ -18,6 +18,11 @@ local Fabric = {
 	DEBUG = true;
 	Heartbeat = RunService.Heartbeat;
 	None = Symbol.named("None");
+	Component = setmetatable({}, {
+		__index = function(_, key)
+			error(("Component %q is not registered!"):format(key))
+		end
+	});
 }
 Fabric.__index = Fabric
 
