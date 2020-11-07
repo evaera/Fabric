@@ -129,7 +129,7 @@ function Component:addLayer(scope, data)
 	return self:_addLayer(scope, data)
 end
 
-function Component:mergeWithBaseLayer(data)
+function Component:mergeBaseLayer(data)
 	local existingBaseLayer = self._layers[Symbol.named("base")] or {}
 	local newBaseLayer = {}
 

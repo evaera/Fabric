@@ -30,7 +30,7 @@ return function(fabric, roact)
 			assert(ref, "You must call createRoot in the passed createRef function!")
 			for name, baseLayer in pairs(self.props.components) do
 				local component = fabric:getOrCreateComponentByRef(name, ref)
-				component:mergeWithBaseLayer(baseLayer)
+				component:mergeBaseLayer(baseLayer)
 			end
 		end
 
@@ -39,7 +39,7 @@ return function(fabric, roact)
 			assert(ref, "You must call createRoot in the passed createRef function!")
 			for name, baseLayer in pairs(self.props.components) do
 				local component = fabric:getOrCreateComponentByRef(name, ref)
-				component:mergeWithBaseLayer(baseLayer)
+				component:mergeBaseLayer(baseLayer)
 			end
 		end
 

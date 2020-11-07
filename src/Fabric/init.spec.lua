@@ -99,7 +99,7 @@ return function()
 			expect(component:get({"nested", "value"})).to.equal("nested_value")
 		end)
 
-		describe("mergeWithBaseLayer", function()
+		describe("mergeBaseLayer", function()
 			it("should allow merging into the base layer", function()
 				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
 
@@ -109,13 +109,13 @@ return function()
 
 				local component = fabric:getComponentByRef("Test", TEST_REF)
 
-				component:mergeWithBaseLayer({
+				component:mergeBaseLayer({
 					foo = 2
 				})
 				expect(component.data.bar).to.equal(1)
 				expect(component.data.foo).to.equal(2)
 
-				component:mergeWithBaseLayer({
+				component:mergeBaseLayer({
 					bar = 2
 				})
 				expect(component.data.bar).to.equal(2)
@@ -125,7 +125,7 @@ return function()
 			it("should work when the base layer is nil", function()
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
-				component:mergeWithBaseLayer({
+				component:mergeBaseLayer({
 					baz = 4
 				})
 
@@ -143,7 +143,7 @@ return function()
 
 				expect(component.data.bar).to.equal(1)
 
-				component:mergeWithBaseLayer({
+				component:mergeBaseLayer({
 					bar = fabric.None
 				})
 				expect(component.data.bar).to.never.be.ok()
