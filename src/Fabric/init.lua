@@ -9,7 +9,6 @@ local Pipeline = require(script.Pipeline)
 local Reactor = require(script.Reactor)
 local Serializer = require(script.Serializer)
 local HotReloader = require(script.HotReloader)
-local Util = require(script.Parent.Shared.Util)
 local Symbol = require(script.Parent.Shared.Symbol)
 
 local Fabric = {
