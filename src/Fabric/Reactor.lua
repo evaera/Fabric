@@ -77,7 +77,12 @@ function Reactor:react(component, key)
 
 		interestedComponent._reactsTo[component] = {}
 
-		interestedComponent:on("destroy", component:on("updated", self._getCallback(component, interestedComponent)))
+		local cleanupCallback = component:on("updated", self._getCallback(component, interestedComponent))
+		interestedComponent:on("destroy", cleanupCallback)
+		interestedComponent:on("hotReloaded", cleanupCallback)
+		interestedComponent:on("hotReloaded", function()
+			interestedComponent._reactsTo[component] = nil
+		end)
 	end
 
 	if interestedComponent._reactsTo[component][interestedEffectKey] == nil then

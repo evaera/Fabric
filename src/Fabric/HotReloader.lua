@@ -16,6 +16,7 @@ function HotReloader:giveModule(module, initialValue)
 		local oldStaticComponent = self.staticComponents[module]
 
 		self.fabric._collection:register(newStaticComponent, true)
+		self.fabric:fire("componentHotReloaded", newStaticComponent)
 
 		local count = 0
 		for _, componentMap in pairs(self.fabric._collection._refComponents) do
@@ -24,6 +25,7 @@ function HotReloader:giveModule(module, initialValue)
 				componentMap[oldStaticComponent] = nil
 
 				setmetatable(componentMap[newStaticComponent], newStaticComponent)
+				componentMap[newStaticComponent]:fire("hotReloaded")
 
 				local ok, errorValue = xpcall(function()
 					componentMap[newStaticComponent]:_runEffects()

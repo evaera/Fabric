@@ -200,13 +200,8 @@ function Component:_runEffects()
 		return
 	end
 
-	-- Run in order if the keys are numbers
-	local iterator = pairs
-	if #self.effects > 0 then
-		iterator = ipairs
-	end
-
-	for key in iterator(self.effects) do
+	-- TODO: Document effects don't run in guaranteed order
+	for key in pairs(self.effects) do
 		self:_runEffect(key)
 	end
 end
