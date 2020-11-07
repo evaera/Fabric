@@ -129,8 +129,21 @@ function Component:addLayer(scope, data)
 	return self:_addLayer(scope, data)
 end
 
-function Component:setBaseLayer(data)
-	return self:_addLayer(Symbol.named("base"), data)
+function Component:mergeWithBaseLayer(data)
+	local existingBaseLayer = self._layers[Symbol.named("base")] or {}
+	local newBaseLayer = {}
+
+	for _, tableToMerge in ipairs({existingBaseLayer, data}) do
+		for key, value in pairs(tableToMerge) do
+			if value == self.fabric.None then
+				newBaseLayer[key] = nil
+			else
+				newBaseLayer[key] = value
+			end
+		end
+	end
+
+	return self:_addLayer(Symbol.named("base"), newBaseLayer)
 end
 
 function Component:removeLayer(scope)

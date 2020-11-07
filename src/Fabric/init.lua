@@ -10,6 +10,7 @@ local Reactor = require(script.Reactor)
 local Serializer = require(script.Serializer)
 local HotReloader = require(script.HotReloader)
 local Util = require(script.Parent.Shared.Util)
+local Symbol = require(script.Parent.Shared.Symbol)
 
 local Fabric = {
 	reducers = require(script.Operators.Reducers);
@@ -17,6 +18,7 @@ local Fabric = {
 	t = require(script.Parent.Parent.t);
 	DEBUG = true;
 	Heartbeat = RunService.Heartbeat;
+	None = Symbol.named("None");
 }
 Fabric.__index = Fabric
 
