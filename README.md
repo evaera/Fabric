@@ -1,8 +1,22 @@
-# Fabric
+<div align="center">
+	<img src="https://user-images.githubusercontent.com/2489210/98458490-31708700-215f-11eb-832e-b8959854b974.png" alt="Fabric" height="100" />
+	<br>
+	<a href="https://discord.gg/Heyvvnd"><img src="https://img.shields.io/discord/425800792679645204.svg?label=discord" /></a>
+</div>
 
 Fabric provides infrastructure for representing the state of *things* in your game.
 
-This is an experimental successor to my other unfinished project, [Rocs](https://github.com/rocs-rbx/rocs).
+Fabric is currently experimental, and has not seen an initial release yet. Getting closer to that point every day!
+
+## Features
+- Safely encapsulate state and behaviors with components
+- Easy cross-component communication
+- Only make changes to the world when relevant data changes
+- [Hot reloading](https://i.eryn.io/2045/4sPsRGdA.mp4): make changes to your code and see them update immediately in game, no need to stop and replay.
+- Automatic replication and networked events
+- Client prediction of server state changes
+- Create new instances declaratively with Roact ([Fabric + Roact = ❤️](https://i.eryn.io/2045/pYNXQain.png))
+- Easy integration with CollectionService tags
 
 ## Principles
 
