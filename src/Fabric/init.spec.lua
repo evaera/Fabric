@@ -1,262 +1,121 @@
-local Util = require(script.Parent.Parent.Shared.Util)
 local Fabric = require(script.Parent)
 
-local TEST_REF = {}
-local TEST_REF_2 = {}
-
 return function()
-	local function makeTestComponentDefinition(fabric)
-		local callCounts =  Util.callCounter()
+	describe("Fabric.new", function()
+		it("should return a fabric", function()
+			local fabric = Fabric.new("the namespace")
 
-		local reducers = fabric.reducers
-
-		return {
-			name = "Test";
-			onInitialize = function(self)
-				expect(self).to.be.ok()
-				callCounts:call("onInitialize")
-			end;
-			onDestroy = function(self)
-				expect(self).to.be.ok()
-				callCounts:call("onDestroy")
-			end;
-			defaults = {
-				testDefault = 5;
-			};
-			reducer = reducers.structure({
-				added = reducers.add;
-				nested = reducers.structure({
-					value = reducers.last;
-				})
-			});
-			shouldUpdate = fabric.comparators.structure({
-				shouldUpdateTest = function()
-					callCounts:call("shouldUpdate")
-					return false
-				end
-			});
-			schema = function(data)
-				expect(data).to.be.ok()
-				expect(type(data)).to.equal("table")
-
-				callCounts:call("schema")
-
-				return true
-			end;
-			refCheck = function(ref)
-				expect(ref).to.be.ok()
-				expect(ref).to.equal(TEST_REF)
-				callCounts:call("refCheck")
-
-				return true
-			end;
-			tag = "Test";
-			onUpdated = function(self)
-				callCounts:call("onUpdated")
-			end;
-			onLoaded = function(self)
-				callCounts:call("onLoaded")
-			end;
-		}, callCounts
-	end
-
-	local fabric, callCounts, testComponent
-
-	beforeEach(function()
-		fabric = Fabric.new("test")
-
-		testComponent, callCounts = makeTestComponentDefinition(fabric)
-
-		fabric:registerComponent(testComponent)
+			expect(fabric.namespace).to.equal("the namespace")
+		end)
 	end)
 
-	describe("Fabric", function()
-		it("should add components", function()
-			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-			local component = pipeline:addLayer("Test", {
-				added = 1;
-				nested = {
-					value = "nested_value";
-				};
-				shouldUpdateTest = 1;
-			})
-
-			expect(callCounts.refCheck).to.equal(1)
-			expect(callCounts.onInitialize).to.equal(1)
-			expect(component:isLoaded()).to.equal(true)
-			expect(callCounts.onLoaded).to.equal(1)
-			expect(callCounts.onUpdated).to.equal(1)
-			expect(callCounts.schema).to.equal(1)
-			expect(callCounts.onDestroy).to.equal(0)
-
-			local loadedPromise = fabric:getLoadedComponentByRef("Test", TEST_REF)
-			expect(loadedPromise:getStatus()).to.equal("Resolved")
-			expect(loadedPromise._values[1]).to.equal(component)
-
-			expect(component:get("added")).to.equal(1)
-			expect(component:get("testDefault")).to.equal(5)
-			expect(component:get({"nested", "value"})).to.equal("nested_value")
-		end)
-
-		describe("mergeBaseLayer", function()
-			it("should allow merging into the base layer", function()
-				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-				pipeline:setBaseLayer("Test", {
-					bar = 1
-				})
-
-				local component = fabric:getComponentByRef("Test", TEST_REF)
-
-				component:mergeBaseLayer({
-					foo = 2
-				})
-				expect(component.data.bar).to.equal(1)
-				expect(component.data.foo).to.equal(2)
-
-				component:mergeBaseLayer({
-					bar = 2
-				})
-				expect(component.data.bar).to.equal(2)
-				expect(component.data.foo).to.equal(2)
-			end)
-
-			it("should work when the base layer is nil", function()
-				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
-
-				component:mergeBaseLayer({
-					baz = 4
-				})
-
-				expect(component.data.baz).to.equal(4)
-			end)
-
-			it("should set fabric.None values to nil", function()
-				local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-				pipeline:setBaseLayer("Test", {
-					bar = 1
-				})
-
-				local component = fabric:getComponentByRef("Test", TEST_REF)
-
-				expect(component.data.bar).to.equal(1)
-
-				component:mergeBaseLayer({
-					bar = fabric.None
-				})
-				expect(component.data.bar).to.never.be.ok()
-			end)
-		end)
-
-		it("should combine layers", function()
-			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-			local component = pipeline:setBaseLayer("Test", {
-				added = 1;
-				nested = {
-					value = "nested_value_first";
-				};
-				shouldUpdateTest = 1;
-			})
-
-			pipeline:getScope("bar"):addLayer("Test", {
-				added = 1;
-				nested = {
-					value = "nested_value_last";
-				};
-				shouldUpdateTest = 2;
-			})
-
-			expect(callCounts.refCheck).to.equal(1)
-			expect(callCounts.onInitialize).to.equal(1)
-			expect(callCounts.onLoaded).to.equal(1)
-			expect(callCounts.onUpdated).to.equal(2)
-			expect(callCounts.schema).to.equal(2)
-			expect(callCounts.onDestroy).to.equal(0)
-
-			expect(component:get("added")).to.equal(2)
-			expect(component:get({"nested", "value"})).to.equal("nested_value_last")
-		end)
-
-		it("should run the shouldUpdate handler", function()
-			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-			local component = pipeline:addLayer("Test", {
-				shouldUpdateTest = 1;
-			})
-
-			pipeline:getScope("bar"):addLayer("Test", {
-				shouldUpdateTest = 2;
-			})
-
-			expect(callCounts.shouldUpdate).to.equal(3)
-			expect(callCounts.onUpdated).to.equal(1)
-		end)
-
-		it("should remove correctly", function()
-			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-
-			local component = pipeline:addLayer("Test", {
-				added = 1;
-			})
-
-			local sameComponent = pipeline:getScope("bar"):addLayer("Test", {
-				added = 2;
-			})
-
-			expect(component).to.equal(sameComponent)
-
-			expect(component:get("added")).to.equal(3)
-
-			pipeline:removeLayer("Test")
-
-			expect(component:get("added")).to.equal(2)
-
-			expect(component:isDestroyed()).to.equal(false)
-
-			pipeline:getScope("bar"):removeLayer("Test")
-
-			expect(component:get("added")).to.equal(nil)
-			expect(callCounts.onDestroy).to.equal(1)
-			expect(component:isDestroyed()).to.equal(true)
-
-			local newComponent = pipeline:addLayer("Test", {
-				added = 1;
-			})
-
-			expect(newComponent).to.never.equal(component)
-		end)
-
-		it("shouldn't remove other refs", function()
-			local newComponent = {
-				name = "Test2",
-				tag = "Test2",
+	describe("Fabric:registerComponent", function()
+		it("should register components", function()
+			local componentDef = {
+				name = "Test";
 			}
-			local newComponent2 = {
-				name = "Test3",
-				tag = "Test3",
-				components = {
-					Test2 = {}
-				},
+			local fabric = Fabric.new()
+
+			local eventCount = 0
+
+			fabric:on("componentRegistered", function()
+				eventCount += 1
+			end)
+
+			fabric:registerComponent(componentDef)
+
+			expect(fabric.Component.Test).to.be.ok()
+			expect(eventCount).to.equal(1)
+		end)
+
+		it("shouldn't register duplicate components", function()
+			local componentDef = {
+				name = "Test";
 			}
-			fabric:registerComponent(newComponent)
-			fabric:registerComponent(newComponent2)
+			local fabric = Fabric.new()
 
-			local pipeline = fabric:pipelineFor(TEST_REF, "foo")
-			local component = pipeline:addLayer("Test3", {})
+			fabric:registerComponent(componentDef)
 
-			local otherPipeline = fabric:pipelineFor(TEST_REF_2, "foo")
-			local otherComoponent = otherPipeline:addLayer("Test3", {})
+			local componentDef2 = {
+				name = "Test";
+			}
+			local stat, err = pcall(function()
+				fabric:registerComponent(componentDef2)
+			end)
 
-			expect(component:isDestroyed()).to.equal(false)
-			expect(otherComoponent:isDestroyed()).to.equal(false)
+			expect(stat).to.equal(false)
+			expect(err:match("A component with this name is already registered!")).to.be.ok()
+		end)
+	end)
 
-			pipeline:removeLayer("Test3")
+	describe("Fabric:registerComponentsIn", function()
 
-			expect(component:isDestroyed()).to.equal(true)
-			expect(otherComoponent:isDestroyed()).to.equal(false)
+	end)
+
+	describe("Fabric:getComponentByRef and Fabric:getOrCreateComponentByRef", function()
+		it("should create and get a component on ref", function()
+			local componentDef = {
+				name = "Test";
+			}
+			local fabric = Fabric.new()
+
+			fabric:registerComponent(componentDef)
+
+			local testRef = {}
+
+			expect(fabric:getComponentByRef("Test", testRef)).to.never.be.ok()
+
+			fabric:getOrCreateComponentByRef(componentDef, testRef)
+			expect(fabric:getComponentByRef("Test", testRef)).to.be.ok()
+		end)
+	end)
+
+	describe("Fabric:removeAllComponentsWithRef", function()
+		it("should remove all components with a ref", function()
+			local componentDef = {
+				name = "Test";
+			}
+			local componentDef2 = {
+				name = "Test2";
+			}
+			local fabric = Fabric.new()
+
+			fabric:registerComponent(componentDef)
+			fabric:registerComponent(componentDef2)
+
+			local testRef = {}
+
+			fabric:getOrCreateComponentByRef(componentDef, testRef)
+			fabric:getOrCreateComponentByRef(componentDef2, testRef)
+
+			expect(fabric:getComponentByRef("Test", testRef)).to.be.ok()
+			expect(fabric:getComponentByRef("Test2", testRef)).to.be.ok()
+
+			fabric:removeAllComponentsWithRef(testRef)
+
+			expect(fabric:getComponentByRef("Test", testRef)).to.never.be.ok()
+			expect(fabric:getComponentByRef("Test2", testRef)).to.never.be.ok()
+		end)
+	end)
+
+	describe("Fabric:fire and Fabric:on", function()
+		it("should fire events", function()
+			local fabric = Fabric.new()
+
+			local callCount = 0
+			fabric:on("testEvent", function()
+				callCount += 1
+			end)
+
+			expect(callCount).to.equal(0)
+
+			fabric:fire("testEvent")
+
+			expect(callCount).to.equal(1)
+
+			fabric:fire("doesn't exist")
+
+			expect(callCount).to.equal(1)
 		end)
 	end)
 end

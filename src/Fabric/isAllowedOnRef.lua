@@ -1,4 +1,4 @@
-local function makeArrayPipelineCheck(array)
+local function makeClassCheckFromArray(array)
 	return function(ref)
 		for _, className in ipairs(array) do
 			if ref:IsA(className) then
@@ -19,7 +19,7 @@ local function isAllowedOnRef(staticComponent, ref)
 	end
 
 	if type(staticComponent.refCheck) == "table" then
-		staticComponent.refCheck = makeArrayPipelineCheck(staticComponent.refCheck)
+		staticComponent.refCheck = makeClassCheckFromArray(staticComponent.refCheck)
 	end
 
 	return staticComponent.refCheck(ref)

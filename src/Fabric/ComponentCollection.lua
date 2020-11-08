@@ -78,7 +78,7 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 
 	if staticComponent.components then
 		for name, data in pairs(staticComponent.components) do
-			self.fabric:pipelineFor(component, "_defaultComponents"):setBaseLayer(name, data)
+			component:getOrCreateComponent(name):mergeBaseLayer(data)
 		end
 	end
 

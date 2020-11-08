@@ -45,7 +45,7 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 			connection:Disconnect()
 
 			for _, item in ipairs(self._deferredCreation) do
-				self.fabric:pipelineFor(item.instance, "tags"):setBaseLayer(item.staticComponent, item.data)
+				self.fabric:getOrCreateComponentByRef(item.staticComponent, item.instance):mergeBaseLayer(item.data)
 			end
 
 			self._deferredCreation = nil

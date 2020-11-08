@@ -5,7 +5,6 @@ local DEFAULT_NAMESPACE = "game"
 local Promise = require(script.Parent.Parent.Promise)
 
 local ComponentCollection = require(script.ComponentCollection)
-local Pipeline = require(script.Pipeline)
 local Reactor = require(script.Reactor)
 local Serializer = require(script.Serializer)
 local HotReloader = require(script.HotReloader)
@@ -41,10 +40,6 @@ function Fabric.new(namespace)
 	end
 
 	return self
-end
-
-function Fabric:pipelineFor(ref, scope)
-	return Pipeline.new(self, ref, scope)
 end
 
 function Fabric:registerComponent(componentDefinition)
