@@ -1,6 +1,7 @@
 <div align="center">
-	<img src="https://i.eryn.io/2045/fabric.svg" alt="Fabric" height="140" />
 	<br>
+	<img src="https://i.eryn.io/2045/fabric.svg" alt="Fabric" height="140" />
+	<br><br>
 	<a href="https://discord.gg/Heyvvnd"><img src="https://img.shields.io/discord/425800792679645204.svg?label=discord" /></a>
 </div>
 
