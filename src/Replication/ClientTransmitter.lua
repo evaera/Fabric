@@ -1,4 +1,7 @@
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Symbol = require(script.Parent.Parent.Shared.Symbol)
 
 local EVENT_NAME = "fabricEvent"
 
@@ -31,15 +34,37 @@ function ClientTransmitter.new(fabric)
 				transmitData
 			)
 		end;
+		sendWithPredictiveLayer = function(component, layerData, transmitEvent, transmitData)
+			local predictionGUID = "NetworkPredictionLayer-" .. HttpService:GenerateGUID(false)
+
+			self:_send(
+				"event",
+				self.fabric.serializer:serialize(component.ref),
+				transmitEvent,
+				transmitData,
+				predictionGUID
+			)
+
+			component.ref:addLayer(predictionGUID, layerData)
+		end;
 	})
 
-	self._event.OnClientEvent:Connect(function(namespace, eventName, ...)
+	self._event.OnClientEvent:Connect(function(namespace, serializedComponent, predictionGUIDs, eventName, ...)
 		if namespace ~= self.fabric.namespace then
 			return
 		end
 
+		local component = self.fabric.serializer:deserialize(serializedComponent)
+		assert(component ~= nil, "component is nil")
+
+		if predictionGUIDs then
+			for _, predictionGUID in ipairs(predictionGUIDs) do
+				component:removeLayer(predictionGUID)
+			end
+		end
+
 		if ClientTransmitter.Remote[eventName] then
-			ClientTransmitter.Remote[eventName](self, ...)
+			ClientTransmitter.Remote[eventName](self, component, ...)
 		end
 	end)
 
@@ -60,11 +85,7 @@ function ClientTransmitter:_send(eventName, serializedComponent, ...)
 	self._event:FireServer(self.fabric.namespace, eventName, serializedComponent, ...)
 end
 
-function ClientTransmitter.Remote:event(serializedComponent, transmitEvent, transmitData)
-	local component = self.fabric.serializer:deserialize(serializedComponent)
-
-	assert(component ~= nil, "component is nil")
-
+function ClientTransmitter.Remote:event(component, transmitEvent, transmitData)
 	local transmitter = component:getComponent(self._component)
 
 	assert(transmitter ~= nil, "component doesn't have a transmitter")
@@ -73,6 +94,11 @@ function ClientTransmitter.Remote:event(serializedComponent, transmitEvent, tran
 		"server" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2),
 		transmitData
 	)
+end
+
+function ClientTransmitter.Remote:rejectNetworkPrediction(component)
+	self.fabric:debug(("Network prediction rejected for %q"):format(tostring(component)))
+	-- no op
 end
 
 return ClientTransmitter

@@ -12,10 +12,13 @@ return {
 
 	onInitialize = function(self)
 		self:getComponent("Transmitter"):on("clientSetTransparency", function(_, amount)
-			print'e'
-			self:addLayer(self, {
-				transparency = amount
-			})
+			if math.random() > 0.5 then
+				self:addLayer(self, {
+					transparency = amount
+				})
+			else
+				print("Ignore")
+			end
 		end)
 	end;
 

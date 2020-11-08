@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local getOrCreate = require(script.Parent.getOrCreate).getOrCreate
 
 local EVENT_NAME = "fabricEvent"
@@ -31,9 +32,9 @@ function ServerTransmitter.new(fabric)
 		broadcast = function(component, transmitEvent, transmitData)
 			for _, player in ipairs(component.subscribers) do
 				self:_send(
+					component,
 					player,
 					"event",
-					self.fabric.serializer:serialize(component.ref),
 					transmitEvent,
 					transmitData
 				)
@@ -41,9 +42,9 @@ function ServerTransmitter.new(fabric)
 		end;
 		sendTo = function(component, player, transmitEvent, transmitData)
 			self:_send(
+				component,
 				player,
 				"event",
-				self.fabric.serializer:serialize(component.ref),
 				transmitEvent,
 				transmitData
 			)
@@ -103,7 +104,26 @@ function ServerTransmitter.Remote:unsubscribe(player, transmitter)
 	end
 end
 
-function ServerTransmitter.Remote:event(player, transmitter, transmitEvent, transmitData)
+function ServerTransmitter.Remote:event(player, transmitter, transmitEvent, transmitData, predictionGUID)
+	if type(predictionGUID) == "string" then
+		if transmitter.predictionGUIDBuffer == nil then
+			transmitter.predictionGUIDBuffer = {}
+
+			local connection
+			connection = transmitter.fabric.Heartbeat:Connect(function()
+				connection:Disconnect()
+
+				if #transmitter.predictionGUIDBuffer > 0 then
+					self:_send(transmitter, player, "rejectNetworkPrediction")
+				end
+
+				transmitter.predictionGUIDBuffer = nil
+			end)
+		end
+
+		table.insert(transmitter.predictionGUIDBuffer, predictionGUID)
+	end
+
 	transmitter:fire(
 		"client" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2),
 		player,
@@ -111,8 +131,19 @@ function ServerTransmitter.Remote:event(player, transmitter, transmitEvent, tran
 	)
 end
 
-function ServerTransmitter:_send(player, eventName, ...)
-	self._event:FireClient(player, self.fabric.namespace, eventName, ...)
+function ServerTransmitter:_send(transmitter, player, eventName, ...)
+	self._event:FireClient(
+		player,
+		self.fabric.namespace,
+		self.fabric.serializer:serialize(transmitter.ref),
+		transmitter.predictionGUIDBuffer,
+		eventName,
+		...
+	)
+
+	if transmitter.predictionGUIDBuffer then
+		transmitter.predictionGUIDBuffer = {}
+	end
 end
 
 return ServerTransmitter
