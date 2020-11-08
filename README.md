@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://user-images.githubusercontent.com/2489210/98458490-31708700-215f-11eb-832e-b8959854b974.png" alt="Fabric" height="100" />
+	<img src="https://i.eryn.io/2045/fabric.svg" alt="Fabric" height="140" />
 	<br>
 	<a href="https://discord.gg/Heyvvnd"><img src="https://img.shields.io/discord/425800792679645204.svg?label=discord" /></a>
 </div>
