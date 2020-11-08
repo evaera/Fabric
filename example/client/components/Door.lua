@@ -12,8 +12,9 @@ return {
 
 		self.cd.MouseClick:Connect(function()
 			local amount = math.random()
-			--self.ref.Transparency = amount
-			self:getComponent("Transmitter"):send("setTransparency", amount)
+			self:getComponent("Transmitter"):sendWithPredictiveLayer({
+				transparency = amount
+			}, "setTransparency", amount)
 		end)
 	end;
 

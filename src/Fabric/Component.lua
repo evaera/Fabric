@@ -155,14 +155,19 @@ function Component:_addLayer(scope, data)
 		return self:_removeLayer(scope)
 	end
 
+	table.insert(self._layerOrder, scope)
 	self._layers[scope] = data
 
 	self:_changed()
 end
 
 function Component:_removeLayer(scope)
-	self._layers[scope] = nil
-	self:_changed()
+	if self._layers[scope] then
+		table.remove(self._layerOrder, table.find(self._layerOrder, scope))
+
+		self._layers[scope] = nil
+		self:_changed()
+	end
 
 	local shouldDestroy = next(self._layers) == nil
 
@@ -236,9 +241,9 @@ function Component:_reduce()
 	local values = { self._layers[Symbol.named("remote")] }
 	table.insert(values, self._layers[Symbol.named("base")])
 
-	for name, data in pairs(self._layers) do
+	for _, name in ipairs(self._layerOrder) do
 		if RESERVED_SCOPES[name] == nil then
-			table.insert(values, data)
+			table.insert(values, self._layers[name])
 		end
 	end
 

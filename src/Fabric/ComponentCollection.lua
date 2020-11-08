@@ -62,6 +62,7 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	)
 
 	component._layers = {}
+	component._layerOrder = {}
 	component._reactsTo = setmetatable({}, WEAK_KEYS_METATABLE)
 	component._listeners = {}
 	component.ref = ref
@@ -105,6 +106,7 @@ function ComponentCollection:deconstructComponent(component)
 	component._ref = nil
 	component._destroyed = true
 	component._layers = nil
+	component._layerOrder = nil
 	component._reactsTo = nil
 end
 
