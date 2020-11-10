@@ -70,15 +70,27 @@ function Component:on(eventName, callback)
 	self._listeners[eventName] = self._listeners[eventName] or {}
 	table.insert(self._listeners[eventName], callback)
 
+	-- The disconnect callback closes on `self`, which will prevent it from being
+	-- GC'd as long as a reference to the callback exists. We use a weak values
+	-- container to allow the component to be cleaned up even if a callback
+	-- exists.
+	local weakSelfContainer = setmetatable({ self = self }, { __mode = "v" })
+
 	return function()
-		if self._listeners == nil then
+		local weakSelf = weakSelfContainer.self
+
+		if not weakSelf then
+			return
+		end
+
+		if weakSelf._listeners == nil then
 			-- This component has been destroyed
 			return
 		end
 
-		for i, listCallback in ipairs(self._listeners[eventName]) do
+		for i, listCallback in ipairs(weakSelf._listeners[eventName]) do
 			if listCallback == callback then
-				table.remove(self._listeners[eventName], i)
+				table.remove(weakSelf._listeners[eventName], i)
 				break
 			end
 		end
