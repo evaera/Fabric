@@ -34,7 +34,15 @@ function ClientTransmitter.new(fabric)
 				transmitData
 			)
 		end;
+		-- Returns true if the layer is created, false if not.
 		sendWithPredictiveLayer = function(component, layerData, transmitEvent, transmitData)
+			if component.ref._loading then
+				-- use regular send if it is loading
+				component:send(transmitEvent, transmitData)
+
+				return false
+			end
+
 			local predictionGUID = "NetworkPredictionLayer-" .. HttpService:GenerateGUID(false)
 
 			self:_send(
@@ -46,6 +54,7 @@ function ClientTransmitter.new(fabric)
 			)
 
 			component.ref:addLayer(predictionGUID, layerData)
+			return true
 		end;
 	})
 
