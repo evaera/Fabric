@@ -1,8 +1,6 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Symbol = require(script.Parent.Parent.Shared.Symbol)
-
 local EVENT_NAME = "fabricEvent"
 
 local ClientTransmitter = {
@@ -99,15 +97,21 @@ function ClientTransmitter.Remote:event(component, transmitEvent, transmitData)
 
 	assert(transmitter ~= nil, "component doesn't have a transmitter")
 
+	local transmitStr = "server" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2)
 	transmitter:fire(
-		"server" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2),
+		transmitStr,
+		transmitData
+	)
+
+	transmitter.ref:fire(
+		transmitStr,
 		transmitData
 	)
 end
 
 function ClientTransmitter.Remote:rejectNetworkPrediction(component)
 	self.fabric:debug(("Network prediction rejected for %q"):format(tostring(component)))
-	-- no op
+	component:getComponent(self._component):fire("rejectNetworkPrediction")
 end
 
 return ClientTransmitter

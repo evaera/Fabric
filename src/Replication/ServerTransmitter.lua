@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local getOrCreate = require(script.Parent.getOrCreate).getOrCreate
 
 local EVENT_NAME = "fabricEvent"
@@ -124,8 +123,15 @@ function ServerTransmitter.Remote:event(player, transmitter, transmitEvent, tran
 		table.insert(transmitter.predictionGUIDBuffer, predictionGUID)
 	end
 
+	local transmitStr = "client" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2)
 	transmitter:fire(
-		"client" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2),
+		transmitStr,
+		player,
+		transmitData
+	)
+
+	transmitter.ref:fire(
+		transmitStr,
 		player,
 		transmitData
 	)
