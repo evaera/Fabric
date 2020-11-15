@@ -103,11 +103,21 @@ function Reducers.priorityValue(reducer)
 end
 
 function Reducers.structure(reducers, default)
+	local passthrough = reducers == nil and default == nil
+
 	if default == nil then
 		default = Reducers.last
 	end
 
 	return function(values)
+		if passthrough then
+			if #values == 1 then
+				return values[1]
+			else
+				return Util.assign({}, unpack(values))
+			end
+		end
+
 		local properties = {}
 
 		for _, value in ipairs(values) do
@@ -192,6 +202,6 @@ end
 Reducers.truthyOr = makeOr(Reducers.truthy)
 Reducers.falsyOr = makeOr(Reducers.falsy)
 Reducers.lastOr = makeOr(Reducers.last)
-Reducers.default = Reducers.structure({})
+Reducers.default = Reducers.structure()
 
 return Reducers
