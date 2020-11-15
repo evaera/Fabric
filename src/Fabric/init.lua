@@ -56,6 +56,11 @@ function Fabric:registerComponentsIn(container)
 		if object:IsA("ModuleScript") then
 			if not object.Name:match("%.spec$") then
 				local componentDefinition = require(object)
+
+				if componentDefinition.name == nil then
+					componentDefinition.name = object.Name
+				end
+
 				self:registerComponent(componentDefinition)
 
 				if self._hotReloader then
