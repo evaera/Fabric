@@ -31,6 +31,7 @@ Types.ComponentDefinition = t.interface({
 	onUpdated = t.optional(t.callback);
 	initialize = t.optional(t.callback);
 	destroy = t.optional(t.callback);
+	render = t.optional(t.callback);
 
 	effects = t.optional(t.array(t.callback));
 
