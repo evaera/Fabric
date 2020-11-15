@@ -120,8 +120,10 @@ function Component:get(key)
 		end
 
 		return object
-	else
+	elseif type(object) == "table" then
 		return object[key]
+	else
+		error("Can't call Component:get() with a parameter when component data isn't a table")
 	end
 end
 

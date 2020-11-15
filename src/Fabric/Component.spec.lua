@@ -196,6 +196,75 @@ return function()
 			end)
 		end)
 
+		describe("get", function()
+			it("should get values", function()
+				fabric:registerComponent({
+					name = "foo"
+				})
+
+				local component = fabric:getOrCreateComponentByRef("foo", TEST_REF)
+
+				expect(component:get("baz")).to.equal(nil)
+				expect(component:get({})).to.equal(nil)
+
+				component:addLayer("bar", {
+					baz = 1
+				})
+
+				expect(component:get("baz")).to.equal(1)
+				expect(component:get({"baz"})).to.equal(1)
+
+				expect(component:get().baz).to.equal(1)
+				expect(component:get({}).baz).to.equal(1)
+			end)
+
+			it("should get nested values", function()
+				fabric:registerComponent({
+					name = "foo"
+				})
+
+				local component = fabric:getOrCreateComponentByRef("foo", TEST_REF)
+
+				expect(component:get("baz")).to.equal(nil)
+
+				component:addLayer("bar", {
+					baz = {
+						qux = 1
+					}
+				})
+
+				expect(component:get({"baz", "qux"})).to.equal(1)
+
+				expect(component:get().baz.qux).to.equal(1)
+				expect(component:get({"baz"}).qux).to.equal(1)
+			end)
+
+			it("should error with non-table data", function()
+				fabric:registerComponent({
+					name = "foo",
+					reducer = fabric.reducers.add,
+				})
+
+				local component = fabric:getOrCreateComponentByRef("foo", TEST_REF)
+
+				expect(component:get("baz")).to.equal(nil)
+				expect(component:get({})).to.equal(nil)
+
+				component:addLayer("bar", 1)
+
+				expect(function()
+					component:get("bad")
+				end).to.throw()
+
+				expect(function()
+					component:get({"hi"})
+				end).to.throw()
+
+				expect(component:get()).to.equal(1)
+				expect(component:get({})).to.equal(1)
+			end)
+		end)
+
 		it("should combine layers", function()
 			local testComponent, callCounts = makeTestComponentDefinition(fabric)
 			fabric:registerComponent(testComponent)
