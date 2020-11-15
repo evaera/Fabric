@@ -101,6 +101,7 @@ function Fabric:getLoadedComponentByRef(componentResolvable, ref)
 				resolve(component)
 			end)
 
+			-- This must be fired by the user. It's not fired anywhere inside the Fabric library.
 			component:on("loadingFailed", function(...)
 				reject(...)
 			end)
