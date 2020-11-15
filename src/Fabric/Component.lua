@@ -21,9 +21,15 @@ function Component:fire(eventName, ...)
 	-- call a method of the event name if it exists
 	local methodName = "on" .. eventName:sub(1, 1):upper() .. eventName:sub(2)
 	if self[methodName] then
-		local thread = coroutine.create(self[methodName])
+		debug.profilebegin(("%s: %s"):format(
+			tostring(self),
+			tostring(methodName)
+		))
 
+		local thread = coroutine.create(self[methodName])
 		local success, errorValue = coroutine.resume(thread, self, ...)
+
+		debug.profileend()
 
 		if not success then
 			warn(("%q method of %s encounetered an error: %s"):format(
@@ -47,8 +53,16 @@ function Component:fire(eventName, ...)
 		return -- Do nothing if no listeners registered
 	end
 
-	for _, callback in ipairs(self._listeners[eventName]) do
+	for i, callback in ipairs(self._listeners[eventName]) do
+		debug.profilebegin(("%s: %s (%d)"):format(
+			tostring(self),
+			tostring(eventName),
+			i
+		))
+
 		local success, errorValue = coroutine.resume(coroutine.create(callback), ...)
+
+		debug.profileend()
 
 		if not success then
 			warn(("Event listener of %s for %q encountered an error: %s"):format(
@@ -219,8 +233,15 @@ end
 function Component:_runEffect(key)
 	self.fabric._reactor:push(self, key)
 
+	debug.profilebegin(("%s: Effect %s"):format(
+		tostring(self),
+		tostring(key)
+	))
+
 	local thread = coroutine.create(self.effects[key])
 	local success, errorValue = coroutine.resume(thread, self)
+
+	debug.profileend()
 
 	if coroutine.status(thread) ~= "dead" then
 		warn(("Effect %q of %s yielded! This is very illegal."):format(
@@ -253,7 +274,14 @@ end
 
 function Component:_changed()
 	local lastData = self.data
+
+	debug.profilebegin(("%s: reduce"):format(
+		tostring(self)
+	))
+
 	local newData = self:_reduce()
+
+	debug.profileend()
 
 	self.data = newData
 
@@ -314,7 +342,7 @@ end
 
 function Component:__tostring()
 	return ("Component(%s)"):format(
-		typeof(self.ref) == "Instance" and ("%s, %s"):format(self.name, self.ref.Name) or self.name
+		typeof(self.ref) == "Instance" and ("%s, %s"):format(self.name, self.ref:GetFullName()) or self.name
 	)
 end
 
