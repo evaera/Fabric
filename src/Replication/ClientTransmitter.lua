@@ -34,7 +34,8 @@ function ClientTransmitter.new(fabric)
 		end;
 		-- Returns true if the layer is created, false if not.
 		sendWithPredictiveLayer = function(component, layerData, transmitEvent, transmitData)
-			if component.ref._loading then
+
+			if component.ref.data == nil then
 				-- use regular send if it is loading
 				component:send(transmitEvent, transmitData)
 
