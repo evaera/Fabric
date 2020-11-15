@@ -15,6 +15,10 @@ function HotReloader:giveModule(module, initialValue)
 		local newStaticComponent = require(module:Clone())
 		local oldStaticComponent = self.staticComponents[module]
 
+		if newStaticComponent.name == nil then
+			newStaticComponent.name = module.Name
+		end
+
 		self.fabric._collection:register(newStaticComponent, true)
 		self.fabric:fire("componentHotReloaded", newStaticComponent)
 
