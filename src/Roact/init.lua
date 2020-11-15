@@ -32,7 +32,7 @@ return function(fabric, roact)
 		if staticComponent.render then
 			local effects = staticComponent.effects or {}
 
-			table.insert(effects, function(self)
+			effects._roactRender = function(self)
 					local rootElement = staticComponent.render(self, createElement)
 
 					if rootElement == nil and self._roactHandle then
@@ -51,7 +51,8 @@ return function(fabric, roact)
 					else
 						roact.update(self._roactHandle, rootElement)
 					end
-			end)
+			end
+
 		end
 	end
 
