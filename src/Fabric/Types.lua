@@ -33,7 +33,7 @@ Types.ComponentDefinition = t.interface({
 	destroy = t.optional(t.callback);
 	render = t.optional(t.callback);
 
-	effects = t.optional(t.array(t.callback));
+	effects = t.optional(t.map(t.any, t.callback));
 
 	-- Extensions
 	tag = t.optional(t.string);
