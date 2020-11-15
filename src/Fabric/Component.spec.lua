@@ -98,9 +98,52 @@ return function()
 			expect(component:get({"nested", "value"})).to.equal("nested_value")
 		end)
 
+		it("should have data and lastData correct in onUpdated", function()
+			local iteration = 0
+			local callCount = 0
+
+			fabric:registerComponent({
+				name = "hi";
+				onUpdated = function(self, newData, lastData)
+					callCount += 1
+
+					if iteration == 0 then
+						expect(newData).to.be.ok()
+						expect(lastData).to.never.be.ok()
+
+						expect(newData.foo).to.equal(1)
+					elseif iteration == 1 then
+						expect(newData).to.be.ok()
+						expect(lastData).to.be.ok()
+
+						expect(newData.foo).to.equal(2)
+						expect(lastData.foo).to.equal(1)
+					end
+				end
+			})
+
+			expect(callCount).to.equal(0)
+
+			local component = fabric:getOrCreateComponentByRef("hi", TEST_REF)
+
+			component:addLayer("hi", {
+				foo = 1
+			})
+
+			expect(callCount).to.equal(1)
+
+			iteration += 1
+
+			component:addLayer("hi", {
+				foo = 2
+			})
+
+			expect(callCount).to.equal(2)
+		end)
+
 		describe("mergeBaseLayer", function()
 			it("should allow merging into the base layer", function()
-				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				local testComponent, _callCounts = makeTestComponentDefinition(fabric)
 				fabric:registerComponent(testComponent)
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
@@ -122,7 +165,7 @@ return function()
 			end)
 
 			it("should work when the base layer is nil", function()
-				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				local testComponent, _callCounts = makeTestComponentDefinition(fabric)
 				fabric:registerComponent(testComponent)
 
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
@@ -135,7 +178,7 @@ return function()
 			end)
 
 			it("should set fabric.None values to nil", function()
-				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				local testComponent, _callCounts = makeTestComponentDefinition(fabric)
 				fabric:registerComponent(testComponent)
 
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)

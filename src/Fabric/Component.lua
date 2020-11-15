@@ -254,7 +254,6 @@ function Component:_changed()
 	local newData = self:_reduce()
 
 	self.data = newData
-	self.lastData = lastData
 
 	if lastData == nil and newData ~= nil then
 		self._loaded = true
@@ -265,10 +264,8 @@ function Component:_changed()
 	end
 
 	if (self.shouldUpdate or Comparators.default)(newData, lastData) then
-		self:fire("updated")
+		self:fire("updated", newData, lastData)
 	end
-
-	self.lastData = nil
 end
 
 function Component:_reduce()

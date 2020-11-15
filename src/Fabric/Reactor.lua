@@ -26,10 +26,7 @@ function Reactor:peek()
 end
 
 function Reactor._getCallback(component, interestedComponent)
-	return function()
-		local data = component.data
-		local lastData = component.lastData
-
+	return function(data, lastData)
 		for interestedEffectKey, interestedKeys in pairs(interestedComponent._reactsTo[component]) do
 			local needsUpdate = false
 
