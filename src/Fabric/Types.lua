@@ -38,6 +38,7 @@ Types.ComponentDefinition = t.interface({
 	-- Extensions
 	tag = t.optional(t.string);
 	chainingEvents = t.optional(t.array(t.string));
+	isService = t.optional(t.boolean);
 })
 
 return Types
