@@ -61,6 +61,7 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 		"Metatable of newly constructed component must be its static counterpart"
 	)
 
+	component.private = {}
 	component._layers = {}
 	component._layerOrder = {}
 	component._reactsTo = setmetatable({}, WEAK_KEYS_METATABLE)
