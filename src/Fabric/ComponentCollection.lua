@@ -19,7 +19,7 @@ function ComponentCollection.new(fabric)
 end
 
 function ComponentCollection:register(componentDefinition, isHotReload)
-	assert(Types.ComponentDefinition, componentDefinition)
+	assert(Types.ComponentDefinition(componentDefinition))
 
 	if not isHotReload then
 		assert(self._componentsByName[componentDefinition.name] == nil, "A component with this name is already registered!")
