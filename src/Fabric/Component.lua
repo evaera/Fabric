@@ -12,7 +12,7 @@ local Component = {}
 Component.__index = Component
 
 function Component:fire(eventName, ...)
-	if not self._listeners then
+	if self:isDestroyed() then
 		error(("Cannot fire event %q because this component is destroyed."):format(
 			tostring(eventName)
 		))
@@ -61,7 +61,7 @@ function Component:fire(eventName, ...)
 end
 
 function Component:on(eventName, callback)
-	if not self._listeners then
+	if self:isDestroyed() then
 		error(("Cannot attach event listener %q because this component is destroyed."):format(
 			tostring(eventName)
 		))
@@ -126,10 +126,12 @@ function Component:get(key)
 end
 
 function Component:getComponent(componentResolvable)
+	self:assertNotDestroyed()
 	return self.fabric._collection:getComponentByRef(componentResolvable, self)
 end
 
 function Component:getOrCreateComponent(componentResolvable)
+	self:assertNotDestroyed()
 	return self.fabric._collection:getOrCreateComponentByRef(componentResolvable, self)
 end
 
@@ -137,11 +139,17 @@ function Component:isDestroyed()
 	return self._destroyed or false
 end
 
+function Component:assertNotDestroyed()
+	assert(self:isDestroyed() == false, "This component is destroyed!")
+end
+
 function Component:addLayer(scope, data)
+	self:assertNotDestroyed()
 	return self:_addLayer(scope, data)
 end
 
 function Component:mergeBaseLayer(data)
+	self:assertNotDestroyed()
 	local existingBaseLayer = self._layers[Symbol.named("base")] or {}
 	local newBaseLayer = {}
 
@@ -159,6 +167,7 @@ function Component:mergeBaseLayer(data)
 end
 
 function Component:removeLayer(scope)
+	self:assertNotDestroyed()
 	return self:_removeLayer(scope)
 end
 
@@ -170,10 +179,27 @@ function Component:_addLayer(scope, data)
 	table.insert(self._layerOrder, scope)
 	self._layers[scope] = data
 
+	-- Set up automatic layer removal if scope is a component
+	-- This lets you use a component as a scope, and the layer gets auto removed
+	-- when the component gets removed.
+	if type(scope) == "table" and getmetatable(getmetatable(scope)) == Component then
+		if self._componentScopeLayers[scope] == nil then
+			self._componentScopeLayers[scope] = scope:on("destroy", function()
+				self:_removeLayer(scope)
+			end)
+		end
+	end
+
 	self:_changed()
 end
 
 function Component:_removeLayer(scope)
+	-- Disconnect listener for layer removal if the layer is removed explicitly
+	if self._componentScopeLayers[scope] then
+		self._componentScopeLayers[scope]() -- This is the disconnect callback
+		self._componentScopeLayers[scope] = nil
+	end
+
 	if self._layers[scope] then
 		table.remove(self._layerOrder, table.find(self._layerOrder, scope))
 
@@ -274,10 +300,12 @@ function Component:_reduce()
 end
 
 function Component:isLoaded()
+	self:assertNotDestroyed()
 	return self._loaded
 end
 
 function Component:setIsLoading()
+	self:assertNotDestroyed()
 	if self._loaded then
 		error("Attempt to call setIsLoading when this component is already loaded.")
 	end

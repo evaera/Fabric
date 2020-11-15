@@ -51,27 +51,26 @@ return function()
 				return true
 			end;
 			tag = "Test";
-			onUpdated = function(self)
+			onUpdated = function()
 				callCounts:call("onUpdated")
 			end;
-			onLoaded = function(self)
+			onLoaded = function()
 				callCounts:call("onLoaded")
 			end;
 		}, callCounts
 	end
 
-	local fabric, callCounts, testComponent
+	local fabric
 
 	beforeEach(function()
 		fabric = Fabric.new("test")
-
-		testComponent, callCounts = makeTestComponentDefinition(fabric)
-
-		fabric:registerComponent(testComponent)
 	end)
 
 	describe("Component", function()
 		it("should add components", function()
+			local testComponent, callCounts = makeTestComponentDefinition(fabric)
+			fabric:registerComponent(testComponent)
+
 			local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
 			component:addLayer("foo", {
@@ -101,6 +100,8 @@ return function()
 
 		describe("mergeBaseLayer", function()
 			it("should allow merging into the base layer", function()
+				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				fabric:registerComponent(testComponent)
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
 				component:mergeBaseLayer({
@@ -121,6 +122,9 @@ return function()
 			end)
 
 			it("should work when the base layer is nil", function()
+				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				fabric:registerComponent(testComponent)
+
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
 				component:mergeBaseLayer({
@@ -131,6 +135,9 @@ return function()
 			end)
 
 			it("should set fabric.None values to nil", function()
+				local testComponent, callCounts = makeTestComponentDefinition(fabric)
+				fabric:registerComponent(testComponent)
+
 				local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
 				component:mergeBaseLayer({
@@ -147,6 +154,9 @@ return function()
 		end)
 
 		it("should combine layers", function()
+			local testComponent, callCounts = makeTestComponentDefinition(fabric)
+			fabric:registerComponent(testComponent)
+
 			local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 			component:mergeBaseLayer({
 				added = 1;
@@ -176,6 +186,9 @@ return function()
 		end)
 
 		it("should run the shouldUpdate handler", function()
+			local testComponent, callCounts = makeTestComponentDefinition(fabric)
+			fabric:registerComponent(testComponent)
+
 			local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 			component:addLayer("foo", {
 				shouldUpdateTest = 1;
@@ -190,6 +203,9 @@ return function()
 		end)
 
 		it("should remove correctly", function()
+			local testComponent, callCounts = makeTestComponentDefinition(fabric)
+			fabric:registerComponent(testComponent)
+
 			local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
 
 			component:addLayer("foo", {
@@ -274,6 +290,35 @@ return function()
 			expect(component).to.be.ok()
 			expect(nestedComponent).to.be.ok()
 			expect(nestedComponent.data.foo).to.equal(1)
+		end)
+
+		it("should remove layers whose scopes are components when the component is destroyed", function()
+			fabric:registerComponent({
+				name = "Test"
+			})
+
+			local component = fabric:getOrCreateComponentByRef("Test", TEST_REF)
+			local componentToBeRemoved = fabric:getOrCreateComponentByRef("Test", TEST_REF_2)
+
+			component:addLayer("some scope", {
+				foo = 0
+			})
+
+			expect(component:get("foo")).to.equal(0)
+
+			component:addLayer(componentToBeRemoved, {
+				foo = 1
+			})
+
+			expect(component:get("foo")).to.equal(1)
+
+			expect(component:isDestroyed()).to.equal(false)
+			expect(componentToBeRemoved:isDestroyed()).to.equal(false)
+
+			fabric:removeAllComponentsWithRef(TEST_REF_2)
+
+			expect(component:isDestroyed()).to.equal(false)
+			expect(component:get("foo")).to.equal(0)
 		end)
 	end)
 end

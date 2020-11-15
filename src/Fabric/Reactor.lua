@@ -60,6 +60,11 @@ function Reactor._getCallback(component, interestedComponent)
 end
 
 function Reactor:react(component, key)
+	if component:isDestroyed() then
+		-- component:get can still be called if the component is destroyed.
+		return
+	end
+
 	local interestedComponent, interestedEffectKey = self:peek()
 
 	if interestedComponent == nil then

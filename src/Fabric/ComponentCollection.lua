@@ -64,6 +64,7 @@ function ComponentCollection:constructComponent(staticComponent, ref)
 	component._layers = {}
 	component._layerOrder = {}
 	component._reactsTo = setmetatable({}, WEAK_KEYS_METATABLE)
+	component._componentScopeLayers = {}
 	component._listeners = {}
 	component.ref = ref
 	component.fabric = self.fabric
@@ -103,11 +104,17 @@ function ComponentCollection:deconstructComponent(component)
 	self:removeAllComponentsWithRef(component)
 
 	component._listeners = nil
-	component._ref = nil
+	component.ref = nil
 	component._destroyed = true
 	component._layers = nil
 	component._layerOrder = nil
 	component._reactsTo = nil
+
+	for _, disconnect in pairs(component._componentScopeLayers) do
+		disconnect()
+	end
+
+	component._componentScopeLayers = nil
 end
 
 function ComponentCollection:getComponentByRef(componentResolvable, ref)
