@@ -287,7 +287,7 @@ function Component:_reduce()
 	local reducedValue = (self.reducer or Reducers.default)(values)
 	local data = reducedValue
 
-	if self.defaults and type(self.defaults) == "table" then
+	if self.defaults and type(data) == "table" then
 		data = Util.assign({}, self.defaults, reducedValue)
 	end
 

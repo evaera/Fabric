@@ -141,6 +141,22 @@ return function()
 			expect(callCount).to.equal(2)
 		end)
 
+		it("should be safe when dealing with non-table data", function()
+			fabric:registerComponent({
+				name = "foo",
+				reducer = fabric.reducers.add,
+				defaults = {
+					bar = 2
+				}
+			})
+
+			local component = fabric:getOrCreateComponentByRef("foo", TEST_REF)
+
+			component:addLayer("aaa", 1)
+
+			expect(component:get()).to.equal(1)
+		end)
+
 		describe("mergeBaseLayer", function()
 			it("should allow merging into the base layer", function()
 				local testComponent, _callCounts = makeTestComponentDefinition(fabric)
