@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local FabricLib = require(script.Parent.Parent)
 local Fabric = FabricLib.Fabric
 local Promise = require(script.Parent.Parent.Parent.Promise)
