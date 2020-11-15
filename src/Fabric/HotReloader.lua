@@ -29,8 +29,8 @@ function HotReloader:giveModule(module, initialValue)
 
 				local ok, errorValue = xpcall(function()
 					componentMap[newStaticComponent]:_runEffects()
-				end, function(errorValue)
-					return debug.traceback(errorValue)
+				end, function(innerErrorValue)
+					return debug.traceback(innerErrorValue)
 				end)
 
 				if not ok then
