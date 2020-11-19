@@ -19,19 +19,19 @@ function ServerTransmitter.new(fabric)
 		"RemoteEvent"
 	)
 
-	self._component = fabric:registerComponent({
+	self._unit = fabric:registerUnit({
 		name = "Transmitter";
 		reducer = fabric.reducers.structure({});
 		schema = function(value)
 			return type(value) == "table"
 		end;
-		onInitialize = function(component)
-			component.subscribers = {}
+		onInitialize = function(unit)
+			unit.subscribers = {}
 		end;
-		broadcast = function(component, transmitEvent, transmitData)
-			for _, player in ipairs(component.subscribers) do
+		broadcast = function(unit, transmitEvent, transmitData)
+			for _, player in ipairs(unit.subscribers) do
 				self:_send(
-					component,
+					unit,
 					player,
 					"event",
 					transmitEvent,
@@ -39,9 +39,9 @@ function ServerTransmitter.new(fabric)
 				)
 			end
 		end;
-		sendTo = function(component, player, transmitEvent, transmitData)
+		sendTo = function(unit, player, transmitEvent, transmitData)
 			self:_send(
-				component,
+				unit,
 				player,
 				"event",
 				transmitEvent,
@@ -50,13 +50,13 @@ function ServerTransmitter.new(fabric)
 		end;
 	})
 
-	self._event.OnServerEvent:Connect(function(player, namespace, eventName, serializedComponent, ...)
+	self._event.OnServerEvent:Connect(function(player, namespace, eventName, serializedUnit, ...)
 		if namespace ~= self.fabric.namespace then
 			return
 		end
 
 		if ServerTransmitter.Remote[eventName] then
-			local transmitter = self:_getTransmitterFromSerializedComponent(serializedComponent)
+			local transmitter = self:_getTransmitterFromSerializedUnit(serializedUnit)
 
 			ServerTransmitter.Remote[eventName](self, player, transmitter, ...)
 		end
@@ -65,21 +65,21 @@ function ServerTransmitter.new(fabric)
 	return setmetatable(self, ServerTransmitter)
 end
 
-function ServerTransmitter:_getTransmitterFromSerializedComponent(serializedComponent)
-	local component = self.fabric.serializer:deserialize(serializedComponent)
+function ServerTransmitter:_getTransmitterFromSerializedUnit(serializedUnit)
+	local unit = self.fabric.serializer:deserialize(serializedUnit)
 
-	if not component then
-		self.fabric:debug(("Client wants to subscribe to component %q on %q, but that doesn't exist on the server"):format(
-				tostring(serializedComponent.name),
-				tostring(serializedComponent.ref)
+	if not unit then
+		self.fabric:debug(("Client wants to subscribe to unit %q on %q, but that doesn't exist on the server"):format(
+				tostring(serializedUnit.name),
+				tostring(serializedUnit.ref)
 			))
 		return
 	end
 
-	local transmitter = component:getComponent(self._component)
+	local transmitter = unit:getUnit(self._unit)
 
 	if not transmitter then
-		self.fabric:debug(("%s does not have a Transmitter attached, but received a subscribe request."):format(component))
+		self.fabric:debug(("%s does not have a Transmitter attached, but received a subscribe request."):format(unit))
 	end
 
 	return transmitter

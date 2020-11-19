@@ -4,7 +4,7 @@ local DEFAULT_NAMESPACE = "game"
 
 local Promise = require(script.Parent.Parent.Promise)
 
-local ComponentCollection = require(script.ComponentCollection)
+local UnitCollection = require(script.UnitCollection)
 local Reactor = require(script.Reactor)
 local Serializer = require(script.Serializer)
 local HotReloader = require(script.HotReloader)
@@ -17,9 +17,9 @@ local Fabric = {
 	DEBUG = true;
 	Heartbeat = RunService.Heartbeat;
 	None = Symbol.named("None");
-	Component = setmetatable({}, {
+	Unit = setmetatable({}, {
 		__index = function(_, key)
-			error(("Component %q is not registered!"):format(key))
+			error(("Unit %q is not registered!"):format(key))
 		end
 	});
 }
@@ -32,7 +32,7 @@ function Fabric.new(namespace)
 	}, Fabric)
 
 	self.serializer = Serializer.new(self)
-	self._collection = ComponentCollection.new(self)
+	self._collection = UnitCollection.new(self)
 	self._reactor = Reactor.new(self)
 
 	if RunService:IsStudio() then
@@ -43,100 +43,100 @@ function Fabric.new(namespace)
 end
 
 --[=[
-	Registers a component. This function should be called before attempting to get or create the component.
+	Registers a unit. This function should be called before attempting to get or create the unit.
 
-	@param componentDefinition ComponentDefinition -- The definition of the component
-	@return ComponentDefinition -- The passed component definition
+	@param unitDefinition UnitDefinition -- The definition of the unit
+	@return UnitDefinition -- The passed unit definition
 ]=]
-function Fabric:registerComponent(componentDefinition)
-	assert(componentDefinition ~= nil, "componentDefinition is nil")
-	self._collection:register(componentDefinition)
+function Fabric:registerUnit(unitDefinition)
+	assert(unitDefinition ~= nil, "unitDefinition is nil")
+	self._collection:register(unitDefinition)
 
-	self:fire("componentRegistered", componentDefinition)
+	self:fire("unitRegistered", unitDefinition)
 
-	return componentDefinition
+	return unitDefinition
 end
 
 --[=[
-	Registers all components that are immmediate children of a container.
+	Registers all units that are immmediate children of a container.
 	Skips any test scripts (i.e. name of form `*.spec`) in the container.
 
 	@param container Instance -- The container
 	@return nil
 ]=]
-function Fabric:registerComponentsIn(container)
+function Fabric:registerUnitsIn(container)
 	for _, object in ipairs(container:GetChildren()) do
 		if object:IsA("ModuleScript") then
 			if not object.Name:match("%.spec$") then
-				local componentDefinition = require(object)
+				local unitDefinition = require(object)
 
-				if componentDefinition.name == nil then
-					componentDefinition.name = object.Name
+				if unitDefinition.name == nil then
+					unitDefinition.name = object.Name
 				end
 
-				self:registerComponent(componentDefinition)
+				self:registerUnit(unitDefinition)
 
 				if self._hotReloader then
-					self._hotReloader:giveModule(object, componentDefinition)
+					self._hotReloader:giveModule(object, unitDefinition)
 				end
 			end
 		else
-			self:registerComponentsIn(object)
+			self:registerUnitsIn(object)
 		end
 	end
 end
 
 --[=[
-	Returns the component associated with a component resolvable that is attached to a ref,
+	Returns the unit associated with a unit resolvable that is attached to a ref,
 	or nil if it doesn't exist.
 
-	@param componentResolvable ComponentResolvable -- The component to retrieve
-	@param ref Ref -- The ref to retrieve the component from
-	@return Component? -- The attached component
+	@param unitResolvable UnitResolvable -- The unit to retrieve
+	@param ref Ref -- The ref to retrieve the unit from
+	@return Unit? -- The attached unit
 ]=]
-function Fabric:getComponentByRef(componentResolvable, ref)
-	return self._collection:getComponentByRef(componentResolvable, ref)
+function Fabric:getUnitByRef(unitResolvable, ref)
+	return self._collection:getUnitByRef(unitResolvable, ref)
 end
 
 --[=[
-	Returns the component associated with a component resolvable that is attached to ref.
-	If it does not exist, then creates and attaches the component to ref and returns it.
+	Returns the unit associated with a unit resolvable that is attached to ref.
+	If it does not exist, then creates and attaches the unit to ref and returns it.
 
-	@param componentResolvable ComponentResolvable -- The component to retrieve
-	@param ref Ref -- The ref to retrieve the attached component from
-	@return Component -- The attached component
+	@param unitResolvable UnitResolvable -- The unit to retrieve
+	@param ref Ref -- The ref to retrieve the attached unit from
+	@return Unit -- The attached unit
 ]=]
-function Fabric:getOrCreateComponentByRef(componentResolvable, ref)
-	return self._collection:getOrCreateComponentByRef(componentResolvable, ref)
+function Fabric:getOrCreateUnitByRef(unitResolvable, ref)
+	return self._collection:getOrCreateUnitByRef(unitResolvable, ref)
 end
 
-function Fabric:getLoadedComponentByRef(componentResolvable, ref)
-	local component = self._collection:getComponentByRef(componentResolvable, ref)
+function Fabric:getLoadedUnitByRef(unitResolvable, ref)
+	local unit = self._collection:getUnitByRef(unitResolvable, ref)
 
-	if component == nil then
-		error(("Attempt to get loaded component %q on %s, but it does not exist."):format(
-			tostring(componentResolvable),
+	if unit == nil then
+		error(("Attempt to get loaded unit %q on %s, but it does not exist."):format(
+			tostring(unitResolvable),
 			tostring(ref)
 		))
 	end
 
-	if not (component._loaded or component._loading) then
-		error(("Attempt to call getLoadedComponentByRef on %q on %s, but it will never be loaded."):format(
-			tostring(componentResolvable),
+	if not (unit._loaded or unit._loading) then
+		error(("Attempt to call getLoadedUnitByRef on %q on %s, but it will never be loaded."):format(
+			tostring(unitResolvable),
 			tostring(ref)
 		))
 	end
 
 	return Promise.new(function(resolve, reject)
-		if component._loaded then
-			return resolve(component)
+		if unit._loaded then
+			return resolve(unit)
 		else
-			component:on("loaded", function()
-				resolve(component)
+			unit:on("loaded", function()
+				resolve(unit)
 			end)
 
 			-- This must be fired by the user. It's not fired anywhere inside the Fabric library.
-			component:on("loadingFailed", function(...)
+			unit:on("loadingFailed", function(...)
 				reject(...)
 			end)
 		end
@@ -144,13 +144,13 @@ function Fabric:getLoadedComponentByRef(componentResolvable, ref)
 end
 
 --[=[
-	Removes all components attached to the passed ref.
+	Removes all units attached to the passed ref.
 
-	@param ref Ref -- The ref to remove all components from
+	@param ref Ref -- The ref to remove all units from
 	@return nil
 ]=]
-function Fabric:removeAllComponentsWithRef(ref)
-	self._collection:removeAllComponentsWithRef(ref)
+function Fabric:removeAllUnitsWithRef(ref)
+	self._collection:removeAllUnitsWithRef(ref)
 end
 
 --[=[

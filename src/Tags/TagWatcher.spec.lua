@@ -27,24 +27,24 @@ return function()
     end)
 
     it("shouldn't listen before registering", function()
-        local newComponent = {
+        local newUnit = {
             name = "Test2",
             tag = "Test2",
         }
-        local newComponent2 = {
+        local newUnit2 = {
             name = "Test3",
             tag = "Test3",
-            components = {
+            units = {
                 Test2 = {}
             },
         }
-        fabric:registerComponent(newComponent2)
+        fabric:registerUnit(newUnit2)
         CollectionService:AddTag(testInstance, "Test3")
         expect(CollectionService:HasTag(testInstance, "Test3")).to.equal(true)
-        fabric:registerComponent(newComponent)
+        fabric:registerUnit(newUnit)
         invokeHeartbeat()
-        local component = fabric:getComponentByRef("Test3", testInstance)
-        expect(component).to.be.ok()
-        expect(fabric:getComponentByRef("Test2", component)).to.be.ok()
+        local unit = fabric:getUnitByRef("Test3", testInstance)
+        expect(unit).to.be.ok()
+        expect(fabric:getUnitByRef("Test2", unit)).to.be.ok()
     end)
 end

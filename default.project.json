@@ -24,8 +24,8 @@
 					"$path": "src"
 				},
 				"$path": "Packages",
-				"exampleClientComponents": {
-					"$path": "./example/client/components"
+				"exampleClientUnits": {
+					"$path": "./example/client/units"
 				}
 			}
 		},

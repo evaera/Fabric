@@ -2,13 +2,13 @@ local t = require(script.Parent.Parent.Parent.t)
 
 local Types = {}
 
-Types.ComponentDefinition = t.interface({
+Types.UnitDefinition = t.interface({
 	-- User implementations
 	name = t.string;
 	reducer = t.optional(t.callback);
 	schema = t.optional(t.callback);
 	defaults = t.optional(t.map(t.string, t.any));
-	components = t.optional(t.map(t.string, t.any));
+	units = t.optional(t.map(t.string, t.any));
 	refCheck = t.optional(t.union(t.array(t.string), t.callback));
 	shouldUpdate = t.optional(t.callback);
 

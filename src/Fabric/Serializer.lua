@@ -35,7 +35,7 @@ function Serializer:serialize(object)
 
 	return
 		serializer and serializer(object, self.fabric)
-		or error(("Unable to serialize replicated component %s"):format(tostring(object)))
+		or error(("Unable to serialize replicated unit %s"):format(tostring(object)))
 end
 
 function Serializer:registerSerializer(class, callback)

@@ -3,7 +3,7 @@ local Util = require(script.Parent.Parent.Shared.Util)
 local Symbol = require(script.Parent.Parent.Shared.Symbol)
 
 return function (fabric)
-	fabric:registerComponent(Util.assign(
+	fabric:registerUnit(Util.assign(
 		{},
 		{
 			name = "Replicated";
@@ -12,7 +12,7 @@ return function (fabric)
 				return type(value) == "table"
 			end;
 			onInitialize = function(self)
-				self.transmitter = self.ref:getOrCreateComponent("Transmitter")
+				self.transmitter = self.ref:getOrCreateUnit("Transmitter")
 				self.initialBroadcastSent = false
 
 				self:on("destroy", self.transmitter:on("subscriberAdded", function(player)

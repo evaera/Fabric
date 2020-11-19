@@ -12,8 +12,8 @@ function TagWatcher.new(fabric)
 		_deferredRegistration = nil;
 	}, TagWatcher)
 
-	fabric:on("componentRegistered", function(staticComponent)
-		if staticComponent.tag then
+	fabric:on("unitRegistered", function(staticUnit)
+		if staticUnit.tag then
 			if self._deferredRegistration == nil then
 				self._deferredRegistration = {}
 
@@ -29,14 +29,14 @@ function TagWatcher.new(fabric)
 				end)
 			end
 
-			table.insert(self._deferredRegistration, staticComponent)
+			table.insert(self._deferredRegistration, staticUnit)
 		end
 	end)
 
 	return self
 end
 
-function TagWatcher:_deferCreation(staticComponent, instance, data)
+function TagWatcher:_deferCreation(staticUnit, instance, data)
 	if self._deferredCreation == nil then
 		self._deferredCreation = {}
 
@@ -45,7 +45,7 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 			connection:Disconnect()
 
 			for _, item in ipairs(self._deferredCreation) do
-				self.fabric:getOrCreateComponentByRef(item.staticComponent, item.instance):mergeBaseLayer(item.data)
+				self.fabric:getOrCreateUnitByRef(item.staticUnit, item.instance):mergeBaseLayer(item.data)
 			end
 
 			self._deferredCreation = nil
@@ -53,14 +53,14 @@ function TagWatcher:_deferCreation(staticComponent, instance, data)
 	end
 
 	table.insert(self._deferredCreation, {
-		staticComponent = staticComponent;
+		staticUnit = staticUnit;
 		instance = instance;
 		data = data;
 	})
 end
 
-function TagWatcher:listenForTag(tag, staticComponent)
-	self.fabric:debug("Creating components for tag", tag)
+function TagWatcher:listenForTag(tag, staticUnit)
+	self.fabric:debug("Creating units for tag", tag)
 	assert(self._tags[tag] == nil, ("Tag %q is already in use!"):format(tag))
 	self._tags[tag] = true
 
@@ -69,29 +69,29 @@ function TagWatcher:listenForTag(tag, staticComponent)
 
 		if
 			RunService:IsClient()
-			and staticComponent.components
-			and staticComponent.components.Replicated
+			and staticUnit.units
+			and staticUnit.units.Replicated
 		then
-			-- Create component and let Replicated component subscribe
-			self.fabric._collection:getOrCreateComponentByRef(staticComponent, instance)
+			-- Create unit and let Replicated unit subscribe
+			self.fabric._collection:getOrCreateUnitByRef(staticUnit, instance)
 		else
 			if
-				instance:FindFirstChild(staticComponent.name)
-				and instance[staticComponent.name].ClassName == "ModuleScript"
+				instance:FindFirstChild(staticUnit.name)
+				and instance[staticUnit.name].ClassName == "ModuleScript"
 			then
-				data = require(instance[staticComponent.name])
+				data = require(instance[staticUnit.name])
 			end
 
-			self.fabric._collection:getOrCreateComponentByRef(staticComponent, instance)
-			self:_deferCreation(staticComponent, instance, data)
+			self.fabric._collection:getOrCreateUnitByRef(staticUnit, instance)
+			self:_deferCreation(staticUnit, instance, data)
 		end
 	end
 
 	local function removeFromTag(instance)
-		local component = self.fabric:getComponentByRef(staticComponent, instance)
+		local unit = self.fabric:getUnitByRef(staticUnit, instance)
 
-		if component then
-			component:fire("destroy")
+		if unit then
+			unit:fire("destroy")
 		end
 	end
 

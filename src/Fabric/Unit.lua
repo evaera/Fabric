@@ -8,12 +8,12 @@ local RESERVED_SCOPES = {
 	[Symbol.named("remote")] = true;
 }
 
-local Component = {}
-Component.__index = Component
+local Unit = {}
+Unit.__index = Unit
 
-function Component:fire(eventName, ...)
+function Unit:fire(eventName, ...)
 	if self:isDestroyed() then
-		error(("Cannot fire event %q because this component is destroyed."):format(
+		error(("Cannot fire event %q because this unit is destroyed."):format(
 			tostring(eventName)
 		))
 	end
@@ -74,9 +74,9 @@ function Component:fire(eventName, ...)
 	end
 end
 
-function Component:on(eventName, callback)
+function Unit:on(eventName, callback)
 	if self:isDestroyed() then
-		error(("Cannot attach event listener %q because this component is destroyed."):format(
+		error(("Cannot attach event listener %q because this unit is destroyed."):format(
 			tostring(eventName)
 		))
 	end
@@ -86,7 +86,7 @@ function Component:on(eventName, callback)
 
 	-- The disconnect callback closes on `self`, which will prevent it from being
 	-- GC'd as long as a reference to the callback exists. We use a weak values
-	-- container to allow the component to be cleaned up even if a callback
+	-- container to allow the unit to be cleaned up even if a callback
 	-- exists.
 	local weakSelfContainer = setmetatable({ self = self }, { __mode = "v" })
 
@@ -98,7 +98,7 @@ function Component:on(eventName, callback)
 		end
 
 		if weakSelf._listeners == nil then
-			-- This component has been destroyed
+			-- This unit has been destroyed
 			return
 		end
 
@@ -111,7 +111,7 @@ function Component:on(eventName, callback)
 	end
 end
 
-function Component:get(key)
+function Unit:get(key)
 	self.fabric._reactor:react(self, key)
 
 	local object = self.data
@@ -137,34 +137,34 @@ function Component:get(key)
 	elseif type(object) == "table" then
 		return object[key]
 	else
-		error("Can't call Component:get() with a parameter when component data isn't a table")
+		error("Can't call Unit:get() with a parameter when unit data isn't a table")
 	end
 end
 
-function Component:getComponent(componentResolvable)
+function Unit:getUnit(unitResolvable)
 	self:assertNotDestroyed()
-	return self.fabric._collection:getComponentByRef(componentResolvable, self)
+	return self.fabric._collection:getUnitByRef(unitResolvable, self)
 end
 
-function Component:getOrCreateComponent(componentResolvable)
+function Unit:getOrCreateUnit(unitResolvable)
 	self:assertNotDestroyed()
-	return self.fabric._collection:getOrCreateComponentByRef(componentResolvable, self)
+	return self.fabric._collection:getOrCreateUnitByRef(unitResolvable, self)
 end
 
-function Component:isDestroyed()
+function Unit:isDestroyed()
 	return self._destroyed or false
 end
 
-function Component:assertNotDestroyed()
-	assert(self:isDestroyed() == false, "This component is destroyed!")
+function Unit:assertNotDestroyed()
+	assert(self:isDestroyed() == false, "This unit is destroyed!")
 end
 
-function Component:addLayer(scope, data)
+function Unit:addLayer(scope, data)
 	self:assertNotDestroyed()
 	return self:_addLayer(scope, data)
 end
 
-function Component:mergeBaseLayer(data)
+function Unit:mergeBaseLayer(data)
 	self:assertNotDestroyed()
 	local existingBaseLayer = self._layers[Symbol.named("base")] or {}
 	local newBaseLayer = {}
@@ -182,12 +182,12 @@ function Component:mergeBaseLayer(data)
 	return self:_addLayer(Symbol.named("base"), newBaseLayer)
 end
 
-function Component:removeLayer(scope)
+function Unit:removeLayer(scope)
 	self:assertNotDestroyed()
 	return self:_removeLayer(scope)
 end
 
-function Component:_addLayer(scope, data)
+function Unit:_addLayer(scope, data)
 	if data == nil then
 		return self:_removeLayer(scope)
 	end
@@ -195,12 +195,12 @@ function Component:_addLayer(scope, data)
 	table.insert(self._layerOrder, scope)
 	self._layers[scope] = data
 
-	-- Set up automatic layer removal if scope is a component
-	-- This lets you use a component as a scope, and the layer gets auto removed
-	-- when the component gets removed.
-	if type(scope) == "table" and getmetatable(getmetatable(scope)) == Component then
-		if self._componentScopeLayers[scope] == nil then
-			self._componentScopeLayers[scope] = scope:on("destroy", function()
+	-- Set up automatic layer removal if scope is a unit
+	-- This lets you use a unit as a scope, and the layer gets auto removed
+	-- when the unit gets removed.
+	if type(scope) == "table" and getmetatable(getmetatable(scope)) == Unit then
+		if self._unitScopeLayers[scope] == nil then
+			self._unitScopeLayers[scope] = scope:on("destroy", function()
 				self:_removeLayer(scope)
 			end)
 		end
@@ -209,11 +209,11 @@ function Component:_addLayer(scope, data)
 	self:_changed()
 end
 
-function Component:_removeLayer(scope)
+function Unit:_removeLayer(scope)
 	-- Disconnect listener for layer removal if the layer is removed explicitly
-	if self._componentScopeLayers[scope] then
-		self._componentScopeLayers[scope]() -- This is the disconnect callback
-		self._componentScopeLayers[scope] = nil
+	if self._unitScopeLayers[scope] then
+		self._unitScopeLayers[scope]() -- This is the disconnect callback
+		self._unitScopeLayers[scope] = nil
 	end
 
 	if self._layers[scope] then
@@ -230,7 +230,7 @@ function Component:_removeLayer(scope)
 	end
 end
 
-function Component:_runEffect(key)
+function Unit:_runEffect(key)
 	self.fabric._reactor:push(self, key)
 
 	debug.profilebegin(("%s: Effect %s"):format(
@@ -261,7 +261,7 @@ function Component:_runEffect(key)
 	end
 end
 
-function Component:_runEffects()
+function Unit:_runEffects()
 	if self.effects == nil then
 		return
 	end
@@ -272,7 +272,7 @@ function Component:_runEffects()
 	end
 end
 
-function Component:_changed()
+function Unit:_changed()
 	local lastData = self.data
 
 	debug.profilebegin(("%s: reduce"):format(
@@ -298,7 +298,7 @@ function Component:_changed()
 	end
 end
 
-function Component:_reduce()
+function Unit:_reduce()
 	if next(self._layers) == nil then
 		return
 	end
@@ -326,24 +326,24 @@ function Component:_reduce()
 	return data
 end
 
-function Component:isLoaded()
+function Unit:isLoaded()
 	self:assertNotDestroyed()
 	return self._loaded
 end
 
-function Component:setIsLoading()
+function Unit:setIsLoading()
 	self:assertNotDestroyed()
 	if self._loaded then
-		error("Attempt to call setIsLoading when this component is already loaded.")
+		error("Attempt to call setIsLoading when this unit is already loaded.")
 	end
 
 	self._loading = true
 end
 
-function Component:__tostring()
-	return ("Component(%s)"):format(
+function Unit:__tostring()
+	return ("Unit(%s)"):format(
 		typeof(self.ref) == "Instance" and ("%s, %s"):format(self.name, self.ref:GetFullName()) or self.name
 	)
 end
 
-return Component
+return Unit

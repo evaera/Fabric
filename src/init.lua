@@ -3,5 +3,5 @@ return {
 	useTags = require(script.Tags);
 	useReplication = require(script.Replication);
 	useRoact = require(script.Roact);
-	useServiceComponents = require(script.ServiceComponents);
+	useServiceUnits = require(script.ServiceUnits);
 }

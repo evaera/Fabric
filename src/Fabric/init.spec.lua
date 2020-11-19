@@ -9,92 +9,92 @@ return function()
 		end)
 	end)
 
-	describe("Fabric:registerComponent", function()
-		it("should register components", function()
-			local componentDef = {
+	describe("Fabric:registerUnit", function()
+		it("should register units", function()
+			local unitDef = {
 				name = "Test";
 			}
 			local fabric = Fabric.new()
 
 			local eventCount = 0
 
-			fabric:on("componentRegistered", function()
+			fabric:on("unitRegistered", function()
 				eventCount += 1
 			end)
 
-			fabric:registerComponent(componentDef)
+			fabric:registerUnit(unitDef)
 
-			expect(fabric.Component.Test).to.be.ok()
+			expect(fabric.Unit.Test).to.be.ok()
 			expect(eventCount).to.equal(1)
 		end)
 
-		it("shouldn't register duplicate components", function()
-			local componentDef = {
+		it("shouldn't register duplicate units", function()
+			local unitDef = {
 				name = "Test";
 			}
 			local fabric = Fabric.new()
 
-			fabric:registerComponent(componentDef)
+			fabric:registerUnit(unitDef)
 
-			local componentDef2 = {
+			local unitDef2 = {
 				name = "Test";
 			}
 			local stat, err = pcall(function()
-				fabric:registerComponent(componentDef2)
+				fabric:registerUnit(unitDef2)
 			end)
 
 			expect(stat).to.equal(false)
-			expect(err:match("A component with this name is already registered!")).to.be.ok()
+			expect(err:match("A unit with this name is already registered!")).to.be.ok()
 		end)
 	end)
 
-	describe("Fabric:registerComponentsIn", function()
+	describe("Fabric:registerUnitsIn", function()
 
 	end)
 
-	describe("Fabric:getComponentByRef and Fabric:getOrCreateComponentByRef", function()
-		it("should create and get a component on ref", function()
-			local componentDef = {
+	describe("Fabric:getUnitByRef and Fabric:getOrCreateUnitByRef", function()
+		it("should create and get a unit on ref", function()
+			local unitDef = {
 				name = "Test";
 			}
 			local fabric = Fabric.new()
 
-			fabric:registerComponent(componentDef)
+			fabric:registerUnit(unitDef)
 
 			local testRef = {}
 
-			expect(fabric:getComponentByRef("Test", testRef)).to.never.be.ok()
+			expect(fabric:getUnitByRef("Test", testRef)).to.never.be.ok()
 
-			fabric:getOrCreateComponentByRef(componentDef, testRef)
-			expect(fabric:getComponentByRef("Test", testRef)).to.be.ok()
+			fabric:getOrCreateUnitByRef(unitDef, testRef)
+			expect(fabric:getUnitByRef("Test", testRef)).to.be.ok()
 		end)
 	end)
 
-	describe("Fabric:removeAllComponentsWithRef", function()
-		it("should remove all components with a ref", function()
-			local componentDef = {
+	describe("Fabric:removeAllUnitsWithRef", function()
+		it("should remove all units with a ref", function()
+			local unitDef = {
 				name = "Test";
 			}
-			local componentDef2 = {
+			local unitDef2 = {
 				name = "Test2";
 			}
 			local fabric = Fabric.new()
 
-			fabric:registerComponent(componentDef)
-			fabric:registerComponent(componentDef2)
+			fabric:registerUnit(unitDef)
+			fabric:registerUnit(unitDef2)
 
 			local testRef = {}
 
-			fabric:getOrCreateComponentByRef(componentDef, testRef)
-			fabric:getOrCreateComponentByRef(componentDef2, testRef)
+			fabric:getOrCreateUnitByRef(unitDef, testRef)
+			fabric:getOrCreateUnitByRef(unitDef2, testRef)
 
-			expect(fabric:getComponentByRef("Test", testRef)).to.be.ok()
-			expect(fabric:getComponentByRef("Test2", testRef)).to.be.ok()
+			expect(fabric:getUnitByRef("Test", testRef)).to.be.ok()
+			expect(fabric:getUnitByRef("Test2", testRef)).to.be.ok()
 
-			fabric:removeAllComponentsWithRef(testRef)
+			fabric:removeAllUnitsWithRef(testRef)
 
-			expect(fabric:getComponentByRef("Test", testRef)).to.never.be.ok()
-			expect(fabric:getComponentByRef("Test2", testRef)).to.never.be.ok()
+			expect(fabric:getUnitByRef("Test", testRef)).to.never.be.ok()
+			expect(fabric:getUnitByRef("Test2", testRef)).to.never.be.ok()
 		end)
 	end)
 

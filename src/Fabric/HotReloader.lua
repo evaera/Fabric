@@ -4,42 +4,42 @@ HotReloader.__index = HotReloader
 function HotReloader.new(fabric)
 	return setmetatable({
 		fabric = fabric;
-		staticComponents = {};
+		staticUnits = {};
 	}, HotReloader)
 end
 
 function HotReloader:giveModule(module, initialValue)
-	self.staticComponents[module] = initialValue
+	self.staticUnits[module] = initialValue
 
 	module.Changed:Connect(function()
-		local newStaticComponent = require(module:Clone())
-		local oldStaticComponent = self.staticComponents[module]
+		local newStaticUnit = require(module:Clone())
+		local oldStaticUnit = self.staticUnits[module]
 
-		if newStaticComponent.name == nil then
-			newStaticComponent.name = module.Name
+		if newStaticUnit.name == nil then
+			newStaticUnit.name = module.Name
 		end
 
-		self.fabric._collection:register(newStaticComponent, true)
-		self.fabric:fire("componentHotReloaded", newStaticComponent)
+		self.fabric._collection:register(newStaticUnit, true)
+		self.fabric:fire("unitHotReloaded", newStaticUnit)
 
 		local count = 0
-		for _, componentMap in pairs(self.fabric._collection._refComponents) do
-			if componentMap[oldStaticComponent] then
-				componentMap[newStaticComponent] = componentMap[oldStaticComponent]
-				componentMap[oldStaticComponent] = nil
+		for _, unitMap in pairs(self.fabric._collection._refUnits) do
+			if unitMap[oldStaticUnit] then
+				unitMap[newStaticUnit] = unitMap[oldStaticUnit]
+				unitMap[oldStaticUnit] = nil
 
-				setmetatable(componentMap[newStaticComponent], newStaticComponent)
-				componentMap[newStaticComponent]:fire("hotReloaded")
+				setmetatable(unitMap[newStaticUnit], newStaticUnit)
+				unitMap[newStaticUnit]:fire("hotReloaded")
 
 				local ok, errorValue = xpcall(function()
-					componentMap[newStaticComponent]:_runEffects()
+					unitMap[newStaticUnit]:_runEffects()
 				end, function(innerErrorValue)
 					return debug.traceback(innerErrorValue)
 				end)
 
 				if not ok then
 					warn(("Effects of %s encountered an error during hot reloading:\n\n%s"):format(
-						tostring(componentMap[newStaticComponent]),
+						tostring(unitMap[newStaticUnit]),
 						tostring(errorValue)
 					))
 				end
@@ -48,9 +48,9 @@ function HotReloader:giveModule(module, initialValue)
 			end
 		end
 
-		self.staticComponents[module] = newStaticComponent
+		self.staticUnits[module] = newStaticUnit
 
-		self.fabric:debug("[Hot Reload]", module.Name, "->", count, "components")
+		self.fabric:debug("[Hot Reload]", module.Name, "->", count, "units")
 	end)
 end
 

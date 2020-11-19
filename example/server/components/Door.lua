@@ -2,7 +2,7 @@ return {
 	name = "Door";
 	tag = "Door";
 
-	components = {
+	units = {
 		Replicated = {};
 	};
 

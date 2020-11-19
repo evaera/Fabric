@@ -8,21 +8,21 @@ local function makeClassCheckFromArray(array)
 
 		return
 			false,
-			("Ref type %q is not allowed to have this component!")
+			("Ref type %q is not allowed to have this unit!")
 				:format(tostring(ref))
 	end
 end
 
-local function isAllowedOnRef(staticComponent, ref)
-	if staticComponent.refCheck == nil then
+local function isAllowedOnRef(staticUnit, ref)
+	if staticUnit.refCheck == nil then
 		return true
 	end
 
-	if type(staticComponent.refCheck) == "table" then
-		staticComponent.refCheck = makeClassCheckFromArray(staticComponent.refCheck)
+	if type(staticUnit.refCheck) == "table" then
+		staticUnit.refCheck = makeClassCheckFromArray(staticUnit.refCheck)
 	end
 
-	return staticComponent.refCheck(ref)
+	return staticUnit.refCheck(ref)
 end
 
 return {

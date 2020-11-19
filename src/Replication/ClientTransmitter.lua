@@ -15,29 +15,29 @@ function ClientTransmitter.new(fabric)
 
 	self._event = ReplicatedStorage:WaitForChild(EVENT_NAME)
 
-	self._component = fabric:registerComponent({
+	self._unit = fabric:registerUnit({
 		name = "Transmitter";
-		onInitialize = function(component)
-			self:subscribe(component.ref)
+		onInitialize = function(unit)
+			self:subscribe(unit.ref)
 		end;
-		onDestroy = function(component)
-			assert(component.ref ~= nil, "component.ref is nil")
-			self:unsubscribe(component.ref)
+		onDestroy = function(unit)
+			assert(unit.ref ~= nil, "unit.ref is nil")
+			self:unsubscribe(unit.ref)
 		end;
-		send = function(component, transmitEvent, transmitData)
+		send = function(unit, transmitEvent, transmitData)
 			self:_send(
 				"event",
-				self.fabric.serializer:serialize(component.ref),
+				self.fabric.serializer:serialize(unit.ref),
 				transmitEvent,
 				transmitData
 			)
 		end;
 		-- Returns true if the layer is created, false if not.
-		sendWithPredictiveLayer = function(component, layerData, transmitEvent, transmitData)
+		sendWithPredictiveLayer = function(unit, layerData, transmitEvent, transmitData)
 
-			if component.ref.data == nil then
+			if unit.ref.data == nil then
 				-- use regular send if it is loading
-				component:send(transmitEvent, transmitData)
+				unit:send(transmitEvent, transmitData)
 
 				return false
 			end
@@ -46,57 +46,57 @@ function ClientTransmitter.new(fabric)
 
 			self:_send(
 				"event",
-				self.fabric.serializer:serialize(component.ref),
+				self.fabric.serializer:serialize(unit.ref),
 				transmitEvent,
 				transmitData,
 				predictionGUID
 			)
 
-			component.ref:addLayer(predictionGUID, layerData)
+			unit.ref:addLayer(predictionGUID, layerData)
 			return true
 		end;
 	})
 
-	self._event.OnClientEvent:Connect(function(namespace, serializedComponent, predictionGUIDs, eventName, ...)
+	self._event.OnClientEvent:Connect(function(namespace, serializedUnit, predictionGUIDs, eventName, ...)
 		if namespace ~= self.fabric.namespace then
 			return
 		end
 
-		local component = self.fabric.serializer:deserialize(serializedComponent)
-		assert(component ~= nil, "component is nil")
+		local unit = self.fabric.serializer:deserialize(serializedUnit)
+		assert(unit ~= nil, "unit is nil")
 
 		if predictionGUIDs then
 			for _, predictionGUID in ipairs(predictionGUIDs) do
-				component:removeLayer(predictionGUID)
+				unit:removeLayer(predictionGUID)
 			end
 		end
 
 		if ClientTransmitter.Remote[eventName] then
-			ClientTransmitter.Remote[eventName](self, component, ...)
+			ClientTransmitter.Remote[eventName](self, unit, ...)
 		end
 	end)
 
 	return setmetatable(self, ClientTransmitter)
 end
 
-function ClientTransmitter:subscribe(component)
-	self.fabric:debug("Subscribing to", component.name)
-	self:_send("subscribe", self.fabric.serializer:serialize(component))
+function ClientTransmitter:subscribe(unit)
+	self.fabric:debug("Subscribing to", unit.name)
+	self:_send("subscribe", self.fabric.serializer:serialize(unit))
 end
 
-function ClientTransmitter:unsubscribe(component)
-	self.fabric:debug("Unsubscribing from", component.name)
-	self:_send("unsubscribe", self.fabric.serializer:serialize(component))
+function ClientTransmitter:unsubscribe(unit)
+	self.fabric:debug("Unsubscribing from", unit.name)
+	self:_send("unsubscribe", self.fabric.serializer:serialize(unit))
 end
 
-function ClientTransmitter:_send(eventName, serializedComponent, ...)
-	self._event:FireServer(self.fabric.namespace, eventName, serializedComponent, ...)
+function ClientTransmitter:_send(eventName, serializedUnit, ...)
+	self._event:FireServer(self.fabric.namespace, eventName, serializedUnit, ...)
 end
 
-function ClientTransmitter.Remote:event(component, transmitEvent, transmitData)
-	local transmitter = component:getComponent(self._component)
+function ClientTransmitter.Remote:event(unit, transmitEvent, transmitData)
+	local transmitter = unit:getUnit(self._unit)
 
-	assert(transmitter ~= nil, "component doesn't have a transmitter")
+	assert(transmitter ~= nil, "unit doesn't have a transmitter")
 
 	local transmitStr = "server" .. transmitEvent:sub(1, 1):upper() .. transmitEvent:sub(2)
 	transmitter:fire(
@@ -110,9 +110,9 @@ function ClientTransmitter.Remote:event(component, transmitEvent, transmitData)
 	)
 end
 
-function ClientTransmitter.Remote:rejectNetworkPrediction(component)
-	self.fabric:debug(("Network prediction rejected for %q"):format(tostring(component)))
-	component:getComponent(self._component):fire("rejectNetworkPrediction")
+function ClientTransmitter.Remote:rejectNetworkPrediction(unit)
+	self.fabric:debug(("Network prediction rejected for %q"):format(tostring(unit)))
+	unit:getUnit(self._unit):fire("rejectNetworkPrediction")
 end
 
 return ClientTransmitter
