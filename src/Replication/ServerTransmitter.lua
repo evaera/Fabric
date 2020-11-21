@@ -1,7 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local getOrCreate = require(script.Parent.getOrCreate).getOrCreate
+local FailMode = require(script.Parent.Parent.Fabric.Serializer).FailMode
 
 local EVENT_NAME = "fabricEvent"
+
+local EVENT_FAIL_MODES = {
+	unsubscribe = FailMode.Ignore;
+}
 
 local ServerTransmitter = {
 	Remote = {}
@@ -56,7 +61,10 @@ function ServerTransmitter.new(fabric)
 		end
 
 		if ServerTransmitter.Remote[eventName] then
-			local transmitter = self:_getTransmitterFromSerializedUnit(serializedUnit)
+			local transmitter = self:_getTransmitterFromSerializedUnit(
+				serializedUnit,
+				EVENT_FAIL_MODES[eventName] or FailMode.Error
+			)
 
 			ServerTransmitter.Remote[eventName](self, player, transmitter, ...)
 		end
@@ -65,11 +73,11 @@ function ServerTransmitter.new(fabric)
 	return setmetatable(self, ServerTransmitter)
 end
 
-function ServerTransmitter:_getTransmitterFromSerializedUnit(serializedUnit)
-	local unit = self.fabric.serializer:deserialize(serializedUnit)
+function ServerTransmitter:_getTransmitterFromSerializedUnit(serializedUnit, failMode)
+	local unit = self.fabric.serializer:deserialize(serializedUnit, failMode)
 
 	if not unit then
-		self.fabric:debug(("Client wants to subscribe to unit %q on %q, but that doesn't exist on the server"):format(
+		self.fabric:debug(("Client wants communicate with unit %q on %q, but that doesn't exist on the server. This could be normal if the attached Instance was removed."):format(
 				tostring(serializedUnit.name),
 				tostring(serializedUnit.ref)
 			))
@@ -79,7 +87,7 @@ function ServerTransmitter:_getTransmitterFromSerializedUnit(serializedUnit)
 	local transmitter = unit:getUnit(self._unit)
 
 	if not transmitter then
-		self.fabric:debug(("%s does not have a Transmitter attached, but received a subscribe request."):format(unit))
+		self.fabric:debug(("%s does not have a Transmitter attached, but received a message."):format(unit))
 	end
 
 	return transmitter
@@ -92,6 +100,10 @@ function ServerTransmitter.Remote:subscribe(player, transmitter)
 end
 
 function ServerTransmitter.Remote:unsubscribe(player, transmitter)
+	if transmitter == nil then
+		return
+	end
+
 	for i, listPlayer in ipairs(transmitter.subscribers) do
 		if player == listPlayer then
 			table.remove(transmitter.subscribers, i)

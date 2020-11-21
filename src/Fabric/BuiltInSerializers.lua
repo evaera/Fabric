@@ -13,19 +13,27 @@ return {
 	};
 
 	deserializers = {
-		_unit = function(data, fabric)
+		_unit = function(data, fabric, failMode)
 			local ref = fabric.serializer:deserialize(data.ref)
 
-			assert(ref ~= nil, ("Attempt to deserialize a %q unit on a ref that's not present in this realm."):format(
-				tostring(data.name)
-			))
+			if failMode == fabric.serializer.FailMode.Error then
+				assert(ref ~= nil, ("Attempt to deserialize a %q unit on a ref that's not present in this realm."):format(
+					tostring(data.name)
+				))
+			end
 
-			return fabric._collection:getUnitByRef(data.name, ref) or error(
-				("Attempt to deserialize unit %q on %q, but it does not exist in this realm."):format(
-					tostring(data.name),
-					tostring(ref)
+			local unit = fabric._collection:getUnitByRef(data.name, ref)
+
+			if unit == nil and failMode == fabric.serializer.FailMode.Error then
+				error(
+					("Attempt to deserialize unit %q on %q, but it does not exist in this realm."):format(
+						tostring(data.name),
+						tostring(ref)
+					)
 				)
-			)
+			end
+
+			return unit
 		end
 	};
 }

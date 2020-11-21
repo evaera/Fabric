@@ -1,6 +1,9 @@
 local BuiltInSerializers = require(script.Parent.BuiltInSerializers)
+local makeEnum = require(script.Parent.makeEnum).makeEnum
 
-local Serializer = {}
+local Serializer = {
+	FailMode = makeEnum("FailMode", {"Error", "Ignore"});
+}
 Serializer.__index = Serializer
 
 function Serializer.new(fabric)
@@ -11,7 +14,7 @@ function Serializer.new(fabric)
 	}, Serializer)
 end
 
-function Serializer:deserialize(serializedTarget)
+function Serializer:deserialize(serializedTarget, failMode)
 	if type(serializedTarget) ~= "table" then
 		return serializedTarget
 	end
@@ -23,7 +26,11 @@ function Serializer:deserialize(serializedTarget)
 
 	local object = deserializer(serializedTarget, self.fabric)
 
-	return object or error("Deserialization failed for object")
+	if object == nil and failMode == Serializer.FailMode.Error then
+		error("Deserialization failed for object and no error was emitted by the deserializer. This is a bug in your deserializer!")
+	end
+
+	return object
 end
 
 function Serializer:serialize(object)
