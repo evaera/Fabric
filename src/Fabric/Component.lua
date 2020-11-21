@@ -192,7 +192,10 @@ function Component:_addLayer(scope, data)
 		return self:_removeLayer(scope)
 	end
 
-	table.insert(self._layerOrder, scope)
+	if self._layers[scope] == nil then
+		table.insert(self._layerOrder, scope)
+	end
+
 	self._layers[scope] = data
 
 	-- Set up automatic layer removal if scope is a component
