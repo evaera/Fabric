@@ -1,27 +1,27 @@
-local Component = require(script.Parent.Component)
+local Unit = require(script.Parent.Unit)
 
 return {
 	serializers = {
-		[Component] = function(component, fabric)
+		[Unit] = function(unit, fabric)
 
 			return {
-				type = "_component";
-				name = component.name;
-				ref = fabric.serializer:serialize(component.ref);
+				type = "_unit";
+				name = unit.name;
+				ref = fabric.serializer:serialize(unit.ref);
 			}
 		end
 	};
 
 	deserializers = {
-		_component = function(data, fabric)
+		_unit = function(data, fabric)
 			local ref = fabric.serializer:deserialize(data.ref)
 
-			assert(ref ~= nil, ("Attempt to deserialize a %q component on a ref that's not present in this realm."):format(
+			assert(ref ~= nil, ("Attempt to deserialize a %q unit on a ref that's not present in this realm."):format(
 				tostring(data.name)
 			))
 
-			return fabric._collection:getComponentByRef(data.name, ref) or error(
-				("Attempt to deserialize component %q on %q, but it does not exist in this realm."):format(
+			return fabric._collection:getUnitByRef(data.name, ref) or error(
+				("Attempt to deserialize unit %q on %q, but it does not exist in this realm."):format(
 					tostring(data.name),
 					tostring(ref)
 				)

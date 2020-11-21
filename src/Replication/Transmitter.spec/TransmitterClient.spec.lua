@@ -10,7 +10,7 @@ return function()
 		return
 	end
 
-	local testComponent, testRef
+	local testUnit, testRef
 
 
 	-- TODO: since fabrics with the same namesapce share event listeners,
@@ -19,13 +19,13 @@ return function()
 		local fabric = Fabric.new(namespace)
 		FabricLib.useTags(fabric)
 		FabricLib.useReplication(fabric)
-		fabric:registerComponent(testComponent)
+		fabric:registerUnit(testUnit)
 		return fabric
 	end
 	beforeEach(function()
-		testComponent = {
+		testUnit = {
 			name = "TestTransmitter",
-			components = {
+			units = {
 				Replicated = {}
 			},
 		}
@@ -35,18 +35,18 @@ return function()
 	describe("Transmitter", function()
 		it("should transmit from client", function()
 			local fabric = makeFabric("receive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", testRef)
-			expect(component).to.be.ok()
-			component:getComponent("Transmitter"):send("TestEvent", "this is a test arg")
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", testRef)
+			expect(unit).to.be.ok()
+			unit:getUnit("Transmitter"):send("TestEvent", "this is a test arg")
 		end)
 
 		it("should receive from server", function()
 			local fabric = makeFabric("transmit")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", testRef)
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", testRef)
 
 			local done = false
 			Promise.new(function(resolve)
-				component:on("serverTestEvent", function(test_arg)
+				unit:on("serverTestEvent", function(test_arg)
 					resolve(test_arg == "this is a test arg")
 				end)
 			end):andThen(function(clientDone)
@@ -57,20 +57,20 @@ return function()
 
 		it("should send with predictive layers", function()
 			local fabric = makeFabric("predictive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", testRef)
-			expect(component).to.be.ok()
-			component:mergeBaseLayer({
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", testRef)
+			expect(unit).to.be.ok()
+			unit:mergeBaseLayer({
 				someOtherData = true
 			})
-			component:getComponent("Transmitter"):sendWithPredictiveLayer({
+			unit:getUnit("Transmitter"):sendWithPredictiveLayer({
 				testData = true
 			}, "TestEvent", "this is a test arg")
 			-- on same frame, check if predictive data set
-			expect(component:get("testData")).to.equal(true)
+			expect(unit:get("testData")).to.equal(true)
 			local onRejectData = true
 			Promise.new(function(resolve)
-				component:getComponent("Transmitter"):on("rejectNetworkPrediction", function()
-					onRejectData = component:get("testData")
+				unit:getUnit("Transmitter"):on("rejectNetworkPrediction", function()
+					onRejectData = unit:get("testData")
 					resolve()
 				end)
 			end):timeout(2):await()
@@ -79,22 +79,22 @@ return function()
 
 		it("should send with valid predictive layers", function()
 			local fabric = makeFabric("validPredictive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", testRef)
-			expect(component).to.be.ok()
-			component:mergeBaseLayer({
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", testRef)
+			expect(unit).to.be.ok()
+			unit:mergeBaseLayer({
 				someOtherData = true
 			})
-			component:getComponent("Transmitter"):sendWithPredictiveLayer({
+			unit:getUnit("Transmitter"):sendWithPredictiveLayer({
 				testData = 1
 			}, "TestEvent", "this is a test arg")
 			-- on same frame, check if predictive data set
-			expect(component:get("testData")).to.equal(1)
+			expect(unit:get("testData")).to.equal(1)
 			Promise.new(function(resolve)
-				component:on("serverResponse", function()
+				unit:on("serverResponse", function()
 					resolve()
 				end)
 			end):timeout(5):await()
-			expect(component:get("testData")).to.equal(2)
+			expect(unit:get("testData")).to.equal(2)
 		end)
 	end)
 end

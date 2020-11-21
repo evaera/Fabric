@@ -17,7 +17,7 @@ return function()
 	end
 
 
-	local testComponent
+	local testUnit
 
 	-- TODO: since fabrics with the same namesapce share event listeners,
 	-- we must use a unique namespace for each test
@@ -25,13 +25,13 @@ return function()
 		local fabric = Fabric.new(namespace)
 		FabricLib.useTags(fabric)
 		FabricLib.useReplication(fabric)
-		fabric:registerComponent(testComponent)
+		fabric:registerUnit(testUnit)
 		return fabric
 	end
 	beforeEach(function()
-		testComponent = {
+		testUnit = {
 			name = "TestTransmitter",
-			components = {
+			units = {
 				Replicated = {}
 			},
 		}
@@ -40,12 +40,12 @@ return function()
 	describe("Transmitter", function()
 		it("should receive from client", function()
 			local fabric = makeFabric("receive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", TEST_REF)
-			expect(component).to.be.ok()
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", TEST_REF)
+			expect(unit).to.be.ok()
 
 			local done = false
 			local promise = Promise.new(function(resolve)
-				component:on("clientTestEvent", function(_, test_arg)
+				unit:on("clientTestEvent", function(_, test_arg)
 					resolve(test_arg == "this is a test arg")
 				end)
 			end):andThen(function(serverDone)
@@ -60,8 +60,8 @@ return function()
 
 		it("should transmit to client", function()
 			local fabric = makeFabric("transmit")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", TEST_REF)
-			expect(component).to.be.ok()
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", TEST_REF)
+			expect(unit).to.be.ok()
 
 			-- wait for client to sub before pub
 			Promise.all({
@@ -69,8 +69,8 @@ return function()
 					resolve(invokeClientRPC("invoke_test", {script["TransmitterClient.spec"]}, nil, {testNamePattern = "should receive from server"}))
 				end),
 				Promise.new(function(resolve)
-					component:getComponent("Transmitter"):on("subscriberAdded", function()
-						resolve(component:getComponent("Transmitter"):broadcast("TestEvent", "this is a test arg"))
+					unit:getUnit("Transmitter"):on("subscriberAdded", function()
+						resolve(unit:getUnit("Transmitter"):broadcast("TestEvent", "this is a test arg"))
 					end)
 				end)
 			}):timeout(2):await()
@@ -78,11 +78,11 @@ return function()
 
 		it("should reject invalid predictive layers", function()
 			local fabric = makeFabric("predictive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", TEST_REF)
-			expect(component).to.be.ok()
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", TEST_REF)
+			expect(unit).to.be.ok()
 			local done = false
 			local promise = Promise.new(function(resolve)
-				component:on("clientTestEvent", function(_, test_arg)
+				unit:on("clientTestEvent", function(_, test_arg)
 					resolve(test_arg == "this is a test arg")
 				end)
 			end):andThen(function(serverDone)
@@ -97,21 +97,21 @@ return function()
 
 		it("should respond to valid predictive layer", function()
 			local fabric = makeFabric("validPredictive")
-			local component = fabric:getOrCreateComponentByRef("TestTransmitter", TEST_REF)
-			expect(component).to.be.ok()
+			local unit = fabric:getOrCreateUnitByRef("TestTransmitter", TEST_REF)
+			expect(unit).to.be.ok()
 
 			local done = false
 			Promise.all({
 				Promise.new(function(resolve)
-					component:on("clientTestEvent", function(_, test_arg)
+					unit:on("clientTestEvent", function(_, test_arg)
 						resolve(test_arg == "this is a test arg")
 					end)
 				end):andThen(function(serverDone)
 					done = serverDone
-					component:mergeBaseLayer({
+					unit:mergeBaseLayer({
 						testData = 2
 					})
-					component:getComponent("Transmitter"):broadcast("Response")
+					unit:getUnit("Transmitter"):broadcast("Response")
 				end),
 				Promise.new(function(resolve)
 					invokeClientRPC("invoke_test", {script["TransmitterClient.spec"]}, nil, {testNamePattern = "should send with valid predictive layers"})

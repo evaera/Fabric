@@ -9,7 +9,7 @@ return function(fabric, roact)
 				local child = roact.oneChild(self.props[roact.Children])
 				assert(not child, "FabricComponent cannot have any children!")
 				assert(type(self.props.createRef) == "function", "FabricComponent requires a 'createRef' callback as a prop!")
-				assert(self.props.components, "FabricComponent requires a 'components' table as a prop mapping component name -> base layer.")
+				assert(self.props.units, "FabricComponent requires a 'units' table as a prop mapping component name -> base layer.")
 
 				local rootCalled = false
 				local createRoot = function(component, props, children)
@@ -28,18 +28,18 @@ return function(fabric, roact)
 		function FabricComponent:didMount()
 			local ref = self.ref:getValue()
 			assert(ref, "You must call createRoot in the passed createRef function!")
-			for name, baseLayer in pairs(self.props.components) do
-				local component = fabric:getOrCreateComponentByRef(name, ref)
-				component:mergeBaseLayer(baseLayer)
+			for name, baseLayer in pairs(self.props.units) do
+				local unit = fabric:getOrCreateUnitByRef(name, ref)
+				unit:mergeBaseLayer(baseLayer)
 			end
 		end
 
 		function FabricComponent:didUpdate()
 			local ref = self.ref:getValue()
 			assert(ref, "You must call createRoot in the passed createRef function!")
-			for name, baseLayer in pairs(self.props.components) do
-				local component = fabric:getOrCreateComponentByRef(name, ref)
-				component:mergeBaseLayer(baseLayer)
+			for name, baseLayer in pairs(self.props.units) do
+				local unit = fabric:getOrCreateUnitByRef(name, ref)
+				unit:mergeBaseLayer(baseLayer)
 			end
 		end
 

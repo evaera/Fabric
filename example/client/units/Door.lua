@@ -2,7 +2,7 @@ return {
 	name = "Door";
 	tag = "Door";
 
-	components = {
+	units = {
 		Replicated = {};
 	};
 
@@ -12,7 +12,7 @@ return {
 
 		self.cd.MouseClick:Connect(function()
 			local amount = math.random()
-			self:getComponent("Transmitter"):sendWithPredictiveLayer({
+			self:getUnit("Transmitter"):sendWithPredictiveLayer({
 				transparency = amount
 			}, "setTransparency", amount)
 		end)

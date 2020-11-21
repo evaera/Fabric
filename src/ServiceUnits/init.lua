@@ -3,8 +3,8 @@ local RunService = game:GetService("RunService")
 return function(fabric)
 	local deferredCreation
 
-	fabric:on("componentRegistered", function(staticComponent)
-		if staticComponent.isService == true then
+	fabric:on("unitRegistered", function(staticUnit)
+		if staticUnit.isService == true then
 			if deferredCreation == nil then
 				deferredCreation = {}
 
@@ -13,15 +13,15 @@ return function(fabric)
 				connection = RunService.Heartbeat:Connect(function()
 					connection:Disconnect()
 
-					for _, staticComponentToCreate in ipairs(deferredCreation) do
-						fabric:getOrCreateComponentByRef(staticComponentToCreate, game):mergeBaseLayer({})
+					for _, staticUnitToCreate in ipairs(deferredCreation) do
+						fabric:getOrCreateUnitByRef(staticUnitToCreate, game):mergeBaseLayer({})
 					end
 
 					deferredCreation = nil
 				end)
 			end
 
-			table.insert(deferredCreation, staticComponent)
+			table.insert(deferredCreation, staticUnit)
 		end
 	end)
 end

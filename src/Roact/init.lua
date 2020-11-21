@@ -1,14 +1,14 @@
-local Component = require(script.Parent.Fabric.Component)
+local Unit = require(script.Parent.Fabric.Unit)
 
 return function(fabric, roact)
-	local roactComponent = require(script.FabricComponent)(fabric, roact)
+	local roactUnit = require(script.FabricComponent)(fabric, roact)
 
 	local function createElement(instance, props, children)
 		local componentProps = {}
 
 		if props then
 			for key, value in pairs(props) do
-				if getmetatable(key) == Component then
+				if getmetatable(key) == Unit then
 					componentProps[key] = value
 					props[key] = nil
 				end
@@ -16,9 +16,9 @@ return function(fabric, roact)
 		end
 
 		if next(componentProps) then
-			-- we create a roactComponent to attach fabric components to the instance
-			return roact.createElement(roactComponent, {
-				components = componentProps,
+			-- we create a roactUnit to attach fabric units to the instance
+			return roact.createElement(roactUnit, {
+				units = componentProps,
 				createRef = function(root)
 					return root(instance, props, children)
 				end
@@ -28,12 +28,12 @@ return function(fabric, roact)
 		end
 	end
 
-	local function setupRender(staticComponent)
-		if staticComponent.render then
-			local effects = staticComponent.effects or {}
+	local function setupRender(staticUnit)
+		if staticUnit.render then
+			local effects = staticUnit.effects or {}
 
 			effects._roactRender = function(self)
-					local rootElement = staticComponent.render(self, createElement)
+					local rootElement = staticUnit.render(self, createElement)
 
 					if rootElement == nil and self._roactHandle then
 						roact.unmount(self._roactHandle)
@@ -56,6 +56,6 @@ return function(fabric, roact)
 		end
 	end
 
-	fabric:on("componentRegistered", setupRender)
-	fabric:on("componentHotReloaded", setupRender)
+	fabric:on("unitRegistered", setupRender)
+	fabric:on("unitHotReloaded", setupRender)
 end
