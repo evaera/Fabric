@@ -45,7 +45,7 @@
 				"clientTests": {
 					"$path": "./clientTests"
 				},
-				"example": {
+				"example-client": {
 					"$path": "./example/client/clientRun.client.lua"
 				}
 			}
