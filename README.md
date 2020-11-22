@@ -31,9 +31,9 @@ Fabric is currently experimental, and has not seen an initial release yet. Getti
   - This gives us multiple advantages:
     - It's now impossible to run into this scenario: Service A adds a unit to a thing, then Service B adds the same unit to that thing, which effectively did nothing. But now Service B removes that unit, but Service A still wants that unit there. With Fabric, Service B would have just removed its *layer*, not the entire unit. Which means that the unit still exists so long as one layer does.
 - Units are more than just data. They can have their own behavior and can emit events. This is a natural way to think about and model problems that are primarily reacting to state changes.
-- Fabric isn't an ECS (yet, anyway). Units provide functionality to react to state changes, but don't have any special machinery to facilitate updating on fixed intervals or in response to external events. Because of the way Fabric stores state, it would be possible to create an additional library on top of Fabric that provides "System" functionality, and that might be something that happens in the future.
+- Fabric isn't an ECS. Units provide functionality to react to state changes and facilitate updating on fixed intervals or to events, but is organized in a way that is distinct from the ECS pattern.
 - The same unit can exist on the server and the client. Fabric can handle replicating data from the server to the client in order to keep things in sync.
-  - Fabric (will) also support replicated network events per-unit.
+  - Fabric supports replicated network events per-unit.
   - Fabric (will) also support only replicating a subset of the unit's data to the client by optionally white-listing keys of the unit data.
 - Streaming first. Fabric only sends the client data that it needs. The client can request to subscribe to and unsubscribe from server-side units.
 - Units can create other units. Fabric (will) provide an easy way to, based on the data of this unit, create another unit by transforming the data of this unit.
