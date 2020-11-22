@@ -4,4 +4,5 @@ return {
 	useReplication = require(script.Replication);
 	useRoact = require(script.Roact);
 	useServiceUnits = require(script.ServiceUnits);
+	useBatching = require(script.Batching);
 }

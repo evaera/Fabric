@@ -30,29 +30,27 @@ return function(fabric, roact)
 
 	local function setupRender(staticUnit)
 		if staticUnit.render then
-			local effects = staticUnit.effects or {}
+			staticUnit.effects = staticUnit.effects or {}
+			staticUnit.effects._roactRender = function(self)
+				local rootElement = staticUnit.render(self, createElement)
 
-			effects._roactRender = function(self)
-					local rootElement = staticUnit.render(self, createElement)
+				if rootElement == nil and self._roactHandle then
+					roact.unmount(self._roactHandle)
+					self._roactHandle = nil
+					return
+				end
 
-					if rootElement == nil and self._roactHandle then
+				if self._roactHandle == nil then
+					self._roactHandle = roact.mount(rootElement, self.ref)
+
+					self:on("destroy", function()
 						roact.unmount(self._roactHandle)
 						self._roactHandle = nil
-						return
-					end
-
-					if self._roactHandle == nil then
-						self._roactHandle = roact.mount(rootElement, self.ref)
-
-						self:on("destroy", function()
-							roact.unmount(self._roactHandle)
-							self._roactHandle = nil
-						end)
-					else
-						roact.update(self._roactHandle, rootElement)
-					end
+					end)
+				else
+					roact.update(self._roactHandle, rootElement)
+				end
 			end
-
 		end
 	end
 

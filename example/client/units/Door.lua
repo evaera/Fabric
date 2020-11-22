@@ -1,3 +1,5 @@
+local RunService = game:GetService("RunService")
+
 return {
 	name = "Door";
 	tag = "Door";
@@ -16,10 +18,24 @@ return {
 				transparency = amount
 			}, "setTransparency", amount)
 		end)
+
 	end;
 
+	batch = function(on)
+		return {
+			on.spreadInterval(5, function()
+				local color = BrickColor.random()
+				return function(unit)
+					unit:addLayer("e", {
+						color = color
+					})
+				end
+			end),
+		}
+	end,
+
 	onUpdated = function(self)
-		print(self)
+
 	end,
 
 	effects = {
@@ -29,7 +45,6 @@ return {
 
 			self.x = (self.x or 0) + 1
 
-			print(self.x)
 		end,
 		function(self)
 			self.ref.BrickColor = self:get("color") or BrickColor.new("Really red")
