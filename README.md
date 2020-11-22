@@ -18,7 +18,7 @@ Fabric is currently experimental, and has not seen an initial release yet. Getti
 - Client prediction of server state changes
 - Create new instances declaratively with Roact ([Fabric + Roact = ❤️](https://i.eryn.io/2045/pYNXQain.png))
 - Easy integration with CollectionService tags
-
+- Built-in support for distribution of batched updates ([before](https://i.eryn.io/2047/2020-11-22_01-34-54.mp4) and [after](https://i.eryn.io/2047/2020-11-22_01-33-23.mp4))
 ## Principles
 
 - Provide infrastructure for representing game state (things, not services).
