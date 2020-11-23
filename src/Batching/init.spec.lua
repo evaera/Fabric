@@ -3,7 +3,6 @@ local FabricLib = require(script.Parent.Parent)
 local Fabric = FabricLib.Fabric
 
 return function()
-	if true then return end
 
 	local fabric, event
 
