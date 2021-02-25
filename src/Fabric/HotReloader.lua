@@ -11,7 +11,7 @@ end
 function HotReloader:giveModule(module, initialValue)
 	self.staticUnits[module] = initialValue
 
-	module:GetPropertyChangedSignal('Source'):Connect(function()
+	module:GetPropertyChangedSignal("Source"):Connect(function()
 		local newStaticUnit = require(module:Clone())
 		local oldStaticUnit = self.staticUnits[module]
 
