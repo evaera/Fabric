@@ -34,7 +34,7 @@ end
 function Util.callCounter()
 	return setmetatable({
 		call = function(self, key)
-			self[key] = self[key] + 1
+			self[key] += 1
 		end
 	}, {
 		__index = function(self, key)

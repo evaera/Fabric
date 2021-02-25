@@ -32,7 +32,7 @@ function Unit:fire(eventName, ...)
 		debug.profileend()
 
 		if not success then
-			warn(("%q method of %s encounetered an error: %s"):format(
+			warn(("%q method of %s encountered an error: %s"):format(
 				tostring(methodName),
 				tostring(self),
 				tostring(errorValue)

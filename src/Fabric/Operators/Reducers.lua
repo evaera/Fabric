@@ -93,7 +93,7 @@ function Reducers.priorityValue(reducer)
 		for _, struct in ipairs(values) do
 			if struct.priority > highestPriority then
 				highestPriorityValues = {struct.value}
-			elseif struct.priorty == highestPriority then
+			elseif struct.priority == highestPriority then
 				table.insert(highestPriorityValues, struct.value)
 			end
 		end
