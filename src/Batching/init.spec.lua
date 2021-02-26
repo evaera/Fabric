@@ -3,7 +3,6 @@ local FabricLib = require(script.Parent.Parent)
 local Fabric = FabricLib.Fabric
 
 return function()
-	if true then return end
 
 	local fabric, event
 
@@ -108,6 +107,22 @@ return function()
 
 			expect(math.abs(unit:get("testValue") - 5) <= 1).to.equal(true)
 			fabric:removeAllUnitsWithRef(ref)
+		end)
+
+		it("should statically retrieve all units", function()
+			local refs = {}
+			for i = 1, 10 do
+				refs[i] = {}
+			end
+
+			local staticUnit = makeUnitDefinition(function() end)
+			fabric:registerUnit(staticUnit)
+
+			for _, ref in ipairs(refs) do
+				fabric:getOrCreateUnitByRef(staticUnit, ref):mergeBaseLayer({})
+			end
+
+			expect(#staticUnit.getAllUnits()).to.equal(#refs)
 		end)
 	end)
 

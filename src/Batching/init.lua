@@ -200,6 +200,11 @@ return function (fabric)
 					end
 				end)
 			end
+
+			function staticUnit.getAllUnits()
+				-- return empty table to be nice to the user
+				return batches[unitName] or {}
+			end
 		end
 	end
 
