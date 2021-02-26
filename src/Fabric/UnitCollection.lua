@@ -67,6 +67,7 @@ function UnitCollection:constructUnit(staticUnit, ref)
 	unit._reactsTo = setmetatable({}, WEAK_KEYS_METATABLE)
 	unit._unitScopeLayers = {}
 	unit._listeners = {}
+	unit._effectCleanUps = {}
 	unit.ref = ref
 	unit.fabric = self.fabric
 	unit._loading = false
@@ -104,12 +105,15 @@ function UnitCollection:deconstructUnit(unit)
 
 	self:removeAllUnitsWithRef(unit)
 
+	unit:_cleanUpEffects()
+
 	unit._listeners = nil
 	unit.ref = nil
 	unit._destroyed = true
 	unit._layers = nil
 	unit._layerOrder = nil
 	unit._reactsTo = nil
+	unit._effectCleanUps = nil
 
 	for _, disconnect in pairs(unit._unitScopeLayers) do
 		disconnect()

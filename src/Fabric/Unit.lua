@@ -234,6 +234,8 @@ function Unit:_removeLayer(scope)
 end
 
 function Unit:_runEffect(key)
+	self:_cleanUpEffect(key)
+
 	self.fabric._reactor:push(self, key)
 
 	debug.profilebegin(("%s: Effect %s"):format(
@@ -242,7 +244,7 @@ function Unit:_runEffect(key)
 	))
 
 	local thread = coroutine.create(self.effects[key])
-	local success, errorValue = coroutine.resume(thread, self)
+	local success, returnValue = coroutine.resume(thread, self)
 
 	debug.profileend()
 
@@ -255,11 +257,20 @@ function Unit:_runEffect(key)
 
 	self.fabric._reactor:pop()
 
-	if not success then
+	if success then
+		if type(returnValue) == "function" then
+			self._effectCleanUps[key] = returnValue
+		elseif returnValue ~= nil then
+			warn(("Effect %q of %s should only return either a function or nil."):format(
+				tostring(key),
+				tostring(self)
+			))
+		end
+	else
 		warn(("Effect %q of %s encountered an error: %s"):format(
 			tostring(key),
 			tostring(self),
-			tostring(errorValue)
+			tostring(returnValue)
 		))
 	end
 end
@@ -272,6 +283,37 @@ function Unit:_runEffects()
 	-- TODO: Document effects don't run in guaranteed order
 	for key in pairs(self.effects) do
 		self:_runEffect(key)
+	end
+end
+
+function Unit:_cleanUpEffect(key)
+	if self._effectCleanUps[key] then
+		local thread = coroutine.create(self._effectCleanUps[key])
+
+		self._effectCleanUps[key] = nil
+
+		local success, errorValue = coroutine.resume(thread)
+
+		if coroutine.status(thread) ~= "dead" then
+			warn(("Effect clean up %q of %s yielded! Please change your code to avoid doing this."):format(
+				tostring(key),
+				tostring(self)
+			))
+		end
+
+		if not success then
+			warn(("Effect clean up %q of %s encountered an error: %s"):format(
+				tostring(key),
+				tostring(self),
+				tostring(errorValue)
+			))
+		end
+	end
+end
+
+function Unit:_cleanUpEffects()
+	for key in pairs(self._effectCleanUps) do
+		self:_cleanUpEffect(key)
 	end
 end
 

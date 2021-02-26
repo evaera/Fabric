@@ -25,6 +25,8 @@ function HotReloader:giveModule(module, initialValue)
 		local count = 0
 		for _, unitMap in pairs(self.fabric._collection._refUnits) do
 			if unitMap[oldStaticUnit] then
+				unitMap[oldStaticUnit]:_cleanUpEffects()
+
 				unitMap[newStaticUnit] = unitMap[oldStaticUnit]
 				unitMap[oldStaticUnit] = nil
 
