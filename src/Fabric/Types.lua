@@ -21,10 +21,7 @@ Types.UnitDefinition = t.interface({
 	ref = t.none;
 	isLoaded = t.none;
 	setIsLoading = t.none;
-	-- set = t.none;
 	get = t.none;
-	-- getOr = t.none;
-	-- getAnd = t.none;
 
 	-- Events
 	onLoaded = t.optional(t.callback);
