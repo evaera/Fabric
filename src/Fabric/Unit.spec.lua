@@ -449,4 +449,147 @@ return function()
 			expect(unit:get("foo")).to.equal(0)
 		end)
 	end)
+
+	describe("effects", function()
+		it("should run effects on creation", function()
+			local count = 0
+
+			fabric:registerUnit({
+				name = "Test",
+				effects = {
+					function()
+						count += 1
+					end
+				}
+			})
+
+			expect(count).to.equal(0)
+			local unit = fabric:getOrCreateUnitByRef("Test", TEST_REF)
+			expect(count).to.equal(0)
+			unit:mergeBaseLayer({})
+			expect(count).to.equal(1)
+			unit:mergeBaseLayer({})
+			expect(count).to.equal(1)
+		end)
+
+		it("should only re-run effects when accessed keys change", function()
+			local count = 0
+
+			fabric:registerUnit({
+				name = "Test",
+				effects = {
+					function(self)
+						self:get("akey")
+						count += 1
+					end
+				}
+			})
+
+			expect(count).to.equal(0)
+			local unit = fabric:getOrCreateUnitByRef("Test", TEST_REF)
+
+			expect(count).to.equal(0)
+			unit:mergeBaseLayer({
+				akey = 1,
+			})
+			expect(count).to.equal(1)
+			unit:mergeBaseLayer({
+				akey = 1,
+				bkey = 2,
+			})
+			expect(count).to.equal(1)
+			unit:mergeBaseLayer({
+				akey = 3,
+			})
+			expect(count).to.equal(2)
+		end)
+
+		it("should run effect cleanups before running effects again", function()
+			local runCount = 0
+			local cleanCount = 0
+
+			fabric:registerUnit({
+				name = "Test",
+				effects = {
+					function(self)
+						self:get("akey")
+						runCount += 1
+
+						return function()
+							cleanCount += 1
+						end
+					end
+				}
+			})
+
+			local unit = fabric:getOrCreateUnitByRef("Test", TEST_REF)
+
+			expect(runCount).to.equal(0)
+			expect(cleanCount).to.equal(0)
+
+			unit:mergeBaseLayer({
+				akey = 1,
+			})
+
+			expect(runCount).to.equal(1)
+			expect(cleanCount).to.equal(0)
+
+			unit:mergeBaseLayer({
+				akey = 1,
+				bkey = 2,
+			})
+
+			expect(runCount).to.equal(1)
+			expect(cleanCount).to.equal(0)
+
+			unit:mergeBaseLayer({
+				akey = 3,
+			})
+
+			expect(runCount).to.equal(2)
+			expect(cleanCount).to.equal(1)
+		end)
+	end)
+
+	describe("Events", function()
+		SKIP()
+		it("shouldn't run events if connected during firing", function()
+			fabric:registerUnit({
+				name = "Test",
+			})
+
+			local unit = fabric:getOrCreateUnitByRef("Test", TEST_REF)
+
+			local count = 0
+			unit:on("foo", function()
+				unit:on("foo", function()
+					count += 1
+				end)
+			end)
+
+			unit:fire("foo")
+
+			expect(count).to.equal(0)
+		end)
+
+		it("shouldn't skip events if one is disconnected during firing", function()
+			fabric:registerUnit({
+				name = "Test",
+			})
+
+			local unit = fabric:getOrCreateUnitByRef("Test", TEST_REF)
+
+			local disconnect
+			disconnect = unit:on("foo", function()
+				disconnect()
+			end)
+
+			local count = 0
+			unit:on("foo", function()
+				count += 1
+			end)
+
+			expect(count).to.equal(1)
+		end)
+	end)
 end
