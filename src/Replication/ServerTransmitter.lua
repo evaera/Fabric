@@ -99,6 +99,7 @@ function ServerTransmitter.Remote:subscribe(player, transmitter)
 	transmitter:fire("subscriberAdded", player)
 end
 
+-- TODO: Make sure players who leave the game get removed from subscribers
 function ServerTransmitter.Remote:unsubscribe(player, transmitter)
 	if transmitter == nil then
 		return

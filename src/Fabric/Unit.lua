@@ -288,16 +288,21 @@ function Unit:_changed()
 
 	self.data = newData
 
+	local shouldRunAllEffects = false
 	if lastData == nil and newData ~= nil then
 		self._loaded = true
 		self._loading = false
 		self:fire("loaded", newData)
 
-		self:_runEffects()
+		shouldRunAllEffects = true
 	end
 
 	if (self.shouldUpdate or Comparators.default)(newData, lastData) then
 		self:fire("updated", newData, lastData)
+	end
+
+	if shouldRunAllEffects then
+		self:_runEffects()
 	end
 end
 
