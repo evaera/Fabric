@@ -80,6 +80,10 @@ function Fabric:registerUnitsIn(container)
 					self._hotReloader:giveModule(object, unitDefinition)
 				end
 			end
+			
+			if next(object:GetChildren()) ~= nil then 
+				self:registerUnitsIn(object)
+			end
 		else
 			self:registerUnitsIn(object)
 		end
