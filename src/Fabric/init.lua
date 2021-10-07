@@ -25,6 +25,13 @@ local Fabric = {
 }
 Fabric.__index = Fabric
 
+--[=[
+	Creates a new Fabric with the given namespace. Two Fabrics with different namespaces do not share any state.
+	For most use cases, it should be sufficient to use one Fabric instance for the entire game.
+
+	@param namespace string -- The namespace to use (default: "game")
+	@return Fabric -- The created Fabric
+]=]
 function Fabric.new(namespace)
 	local self = setmetatable({
 		namespace = namespace or DEFAULT_NAMESPACE;
@@ -182,7 +189,7 @@ end
 
 	@param eventName string -- The event name to listen to
 	@param callback function -- The callback fired
-	@return nil
+	@return function -- A function that disconnects the listener when called
 ]=]
 function Fabric:on(eventName, callback)
 	self._listeners[eventName] = self._listeners[eventName] or {}

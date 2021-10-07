@@ -11,6 +11,13 @@ local RESERVED_SCOPES = {
 local Unit = {}
 Unit.__index = Unit
 
+--[=[
+	Fires a unit event.
+
+	@param eventName string -- The event name to fire
+	@param ... any -- The arguments to fire the event with.
+	@return nil
+]=]
 function Unit:fire(eventName, ...)
 	if self:isDestroyed() then
 		error(("Cannot fire event %q because this unit is destroyed."):format(
@@ -74,6 +81,13 @@ function Unit:fire(eventName, ...)
 	end
 end
 
+--[=[
+	Listens to a unit event.
+
+	@param eventName string -- The event name to listen to
+	@param callback function -- The callback fired
+	@return function -- A function that disconnects the listener when called
+]=]
 function Unit:on(eventName, callback)
 	if self:isDestroyed() then
 		error(("Cannot attach event listener %q because this unit is destroyed."):format(
@@ -111,6 +125,18 @@ function Unit:on(eventName, callback)
 	end
 end
 
+--[=[
+	Gets the value associated with a key from the unit's data.
+	If called from within an effect, then also attach a Reactor interest to it.
+	::: warning
+	If `:get` is not called on the first run of the effect, then the Reactor interest may not be registered!
+	It is highly recommended to do all `:get` calls at the beginning of the effect.
+	:::
+
+	@param key string -- The key to get
+	@param callback function -- The callback fired
+	@return function -- A function that disconnects the listener when called
+]=]
 function Unit:get(key)
 	self.fabric._reactor:react(self, key)
 
@@ -141,29 +167,64 @@ function Unit:get(key)
 	end
 end
 
+--[=[
+	Returns the unit associated with a unit resolvable that is attached to this unit,
+	or nil if it doesn't exist.
+	Equivalent to calling fabric:getUnitByRef(unitResolvable, unit).
+
+	@param unitResolvable UnitResolvable -- The unit to retrieve
+	@return Unit? -- The attached unit
+]=]
 function Unit:getUnit(unitResolvable)
 	self:assertNotDestroyed()
 	return self.fabric._collection:getUnitByRef(unitResolvable, self)
 end
 
+--[=[
+	Returns the unit associated with a unit resolvable that is attached to this unit.
+	If it does not exist, then creates and attaches the unit to ref and returns it.
+	Equivalent to calling fabric:getOrCreateUnitByRef(unitResolvable, unit).
+
+	@param unitResolvable UnitResolvable -- The unit to retrieve
+	@return Unit -- The attached unit
+]=]
 function Unit:getOrCreateUnit(unitResolvable)
 	self:assertNotDestroyed()
 	return self.fabric._collection:getOrCreateUnitByRef(unitResolvable, self)
 end
 
+--[=[
+	Returns true if the unit is destroyed.
+
+	@return bool -- Whether or not the unit is destroyed.
+]=]
 function Unit:isDestroyed()
 	return self._destroyed or false
 end
 
+--[=[
+	Throws an error if the unit is destroyed.
+]=]
 function Unit:assertNotDestroyed()
 	assert(self:isDestroyed() == false, "This unit is destroyed!")
 end
 
+--[=[
+	Adds a layer to the unit.
+
+	@param scope string -- The scope to add the layer with
+	@param data any -- The layer's data (will overwrite previous data!)
+]=]
 function Unit:addLayer(scope, data)
 	self:assertNotDestroyed()
 	return self:_addLayer(scope, data)
 end
 
+--[=[
+	Merges the data into the base layer.
+
+	@param data table -- The data to merge into the base layer
+]=]
 function Unit:mergeBaseLayer(data)
 	self:assertNotDestroyed()
 	local existingBaseLayer = self._layers[Symbol.named("base")] or {}
@@ -182,6 +243,11 @@ function Unit:mergeBaseLayer(data)
 	return self:_addLayer(Symbol.named("base"), newBaseLayer)
 end
 
+--[=[
+	Removes a layer from the unit.
+
+	@param scope string -- The scope of the layer to remove
+]=]
 function Unit:removeLayer(scope)
 	self:assertNotDestroyed()
 	return self:_removeLayer(scope)
@@ -376,11 +442,20 @@ function Unit:_reduce()
 	return data
 end
 
+--[=[
+	Returns true if the unit is loaded.
+	Units are considered loaded after the data has been set for the first time.
+
+	@return bool -- Whether or not the unit is loaded.
+]=]
 function Unit:isLoaded()
 	self:assertNotDestroyed()
 	return self._loaded
 end
 
+--[=[
+	Sets the unit's status to `loading`. If called after the unit has already loaded, will instead throw an error.
+]=]
 function Unit:setIsLoading()
 	self:assertNotDestroyed()
 	if self._loaded then
